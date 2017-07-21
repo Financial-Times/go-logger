@@ -10,11 +10,10 @@ type AppLogger struct {
 }
 
 const (
-	serviceStartedEvent  = "service_started"
-	mappingEvent         = "mapping"
+	serviceStartedEvent = "service_started"
+	mappingEvent        = "mapping"
 )
 
-// TODO: potentially add level at setup
 func NewLogger(serviceName string) *AppLogger {
 	logrus.SetLevel(logrus.InfoLevel)
 	log := logrus.New()
@@ -25,60 +24,61 @@ func NewLogger(serviceName string) *AppLogger {
 //****************** MONITORING LOGS ******************
 func (appLogger *AppLogger) MonitoringEvent(eventName, tid, contentType, message string) {
 	appLogger.log.WithFields(logrus.Fields{
-		"event":          eventName,
+		"event":            eventName,
 		"monitoring_event": true,
-		"service_name": appLogger.serviceName,
-		"transaction_id": tid,
-		"content_type": contentType,
+		"service_name":     appLogger.serviceName,
+		"transaction_id":   tid,
+		"content_type":     contentType,
 	}).Info(message)
 }
 
 func (appLogger *AppLogger) MonitoringEventWithUUID(eventName, tid, uuid, contentType, message string) {
 	appLogger.log.WithFields(logrus.Fields{
-		"event":          eventName,
+		"event":            eventName,
 		"monitoring_event": true,
-		"transaction_id": tid,
-		"uuid":           uuid,
-		"content_type": contentType,
-		"service_name": appLogger.serviceName,
+		"transaction_id":   tid,
+		"uuid":             uuid,
+		"content_type":     contentType,
+		"service_name":     appLogger.serviceName,
 	}).Info(message)
 }
 
-func (appLogger *AppLogger) MonitoringTypeValidationEvent(tid, uuid, contentType, message string, isValid bool) {
+func (appLogger *AppLogger) MonitoringValidationEvent(tid, uuid, contentType, message string, isValid bool) {
 	if isValid {
 		appLogger.log.WithFields(logrus.Fields{
-			"event":          mappingEvent,
-			"transaction_id": tid,
-			"uuid":           uuid,
-			"content_type": contentType,
-			"service_name": appLogger.serviceName,
-			"isValid": isValid,
+			"event":            mappingEvent,
+			"monitoring_event": true,
+			"transaction_id":   tid,
+			"uuid":             uuid,
+			"content_type":     contentType,
+			"service_name":     appLogger.serviceName,
+			"isValid":          isValid,
 		}).Info(message)
 	} else {
 		appLogger.log.WithFields(logrus.Fields{
-			"event":          mappingEvent,
-			"transaction_id": tid,
-			"uuid":           uuid,
-			"content_type": contentType,
-			"service_name": appLogger.serviceName,
-			"isValid": isValid,
+			"event":            mappingEvent,
+			"monitoring_event": true,
+			"transaction_id":   tid,
+			"uuid":             uuid,
+			"content_type":     contentType,
+			"service_name":     appLogger.serviceName,
+			"isValid":          isValid,
 		}).Error(message)
 	}
 }
 
 //****************** SERVICE LOGS ******************
-// TODO: should it be fatal, if no transaction id is present?
 func (appLogger *AppLogger) ServiceStartedEvent(port int) {
 	fields := map[string]interface{}{
-		"service_name" : appLogger.serviceName,
-		"event": serviceStartedEvent,
+		"service_name": appLogger.serviceName,
+		"event":        serviceStartedEvent,
 	}
 	appLogger.log.WithFields(fields).Infof("Service running on port [%d]", port)
 }
 
 func (appLogger *AppLogger) InfoEvent(transactionID string, message string) {
 	fields := map[string]interface{}{
-		"service_name" : appLogger.serviceName,
+		"service_name":   appLogger.serviceName,
 		"transaction_id": transactionID,
 	}
 	appLogger.log.WithFields(fields).Info(message)
@@ -86,7 +86,7 @@ func (appLogger *AppLogger) InfoEvent(transactionID string, message string) {
 
 func (appLogger *AppLogger) InfoEventWithUUID(transactionID string, contentUUID string, message string) {
 	fields := map[string]interface{}{
-		"service_name" : appLogger.serviceName,
+		"service_name":   appLogger.serviceName,
 		"transaction_id": transactionID,
 	}
 	if contentUUID != "" {
@@ -95,11 +95,23 @@ func (appLogger *AppLogger) InfoEventWithUUID(transactionID string, contentUUID 
 	appLogger.log.WithFields(fields).Info(message)
 }
 
-func (appLogger *AppLogger) WarnEvent(transactionID string, contentUUID string, message string, err error) {
+func (appLogger *AppLogger) WarnEvent(transactionID string, message string, err error) {
 	fields := map[string]interface{}{
-		"service_name" : appLogger.serviceName,
+		"service_name": appLogger.serviceName,
 	}
+	if err != nil {
+		fields["error"] = err
+	}
+	if transactionID != "" {
+		fields["transaction_id"] = transactionID
+	}
+	appLogger.log.WithFields(fields).Warn(message)
+}
 
+func (appLogger *AppLogger) WarnEventWithUUID(transactionID string, contentUUID string, message string, err error) {
+	fields := map[string]interface{}{
+		"service_name": appLogger.serviceName,
+	}
 	if err != nil {
 		fields["error"] = err
 	}
@@ -109,30 +121,14 @@ func (appLogger *AppLogger) WarnEvent(transactionID string, contentUUID string, 
 	if contentUUID != "" {
 		fields["uuid"] = contentUUID
 	}
-
-	appLogger.log.WithFields(fields).Warn(message)
-}
-
-func (appLogger *AppLogger) WarnEventWithUUID(transactionID string, message string, err error) {
-	fields := map[string]interface{}{
-		"service_name" : appLogger.serviceName,
-	}
-
-	if err != nil {
-		fields["error"] = err
-	}
-	if transactionID != "" {
-		fields["transaction_id"] = transactionID
-	}
 	appLogger.log.WithFields(fields).Warn(message)
 }
 
 func (appLogger *AppLogger) ErrorEvent(transactionID string, message string, err error) {
 	fields := map[string]interface{}{
-		"service_name" : appLogger.serviceName,
-		"error": err,
+		"service_name": appLogger.serviceName,
+		"error":        err,
 	}
-
 	if transactionID != "" {
 		fields["transaction_id"] = transactionID
 	}
@@ -141,10 +137,9 @@ func (appLogger *AppLogger) ErrorEvent(transactionID string, message string, err
 
 func (appLogger *AppLogger) ErrorEventWithUUID(transactionID string, contentUUID string, message string, err error) {
 	fields := map[string]interface{}{
-		"service_name" : appLogger.serviceName,
-		"error": err,
+		"service_name": appLogger.serviceName,
+		"error":        err,
 	}
-
 	if transactionID != "" {
 		fields["transaction_id"] = transactionID
 	}
@@ -156,14 +151,13 @@ func (appLogger *AppLogger) ErrorEventWithUUID(transactionID string, contentUUID
 
 func (appLogger *AppLogger) FatalEvent(message string, err error) {
 	fields := map[string]interface{}{
-		"service_name" : appLogger.serviceName,
-		"error": err,
+		"service_name": appLogger.serviceName,
+		"error":        err,
 	}
-
 	appLogger.log.WithFields(fields).Fatal(message)
 }
 
-// GENERAL stuctured log messages
+//****************** SERVICE general structured LOGS ******************
 func (appLogger *AppLogger) Infof(fields map[string]interface{}, message string, args ...interface{}) {
 	fields["service_name"] = appLogger.serviceName
 	appLogger.log.WithFields(fields).Infof(message, args)
