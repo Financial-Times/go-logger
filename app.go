@@ -23,20 +23,20 @@ func InitLogger(serviceName string, logLevel string) {
 		parsedLogLevel = logrus.InfoLevel
 	}
 	logrus.SetLevel(parsedLogLevel)
-	log := logrus.New()
+	log := NewLogger()
 	log.Formatter = new(logrus.JSONFormatter)
 	logger = &appLogger{log, serviceName}
 }
 
-func InitSimpleLogger(serviceName string) {
+func InitDefaultLogger(serviceName string) {
 	logrus.SetLevel(logrus.InfoLevel)
-	log := logrus.New()
+	log := NewLogger()
 	log.Formatter = new(logrus.JSONFormatter)
 	logger = &appLogger{log, serviceName}
 }
 
-func Logger() *logrus.Logger {
-	return logger.log
+func NewLogger() *logrus.Logger {
+	return logrus.New()
 }
 
 //****************** MONITORING LOGS ******************
