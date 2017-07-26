@@ -1,4 +1,4 @@
-package go_logger
+package gologger
 
 import (
 	"github.com/Sirupsen/logrus"
