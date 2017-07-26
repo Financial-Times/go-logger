@@ -14,6 +14,18 @@ const (
 	mappingEvent        = "mapping"
 )
 
+func NewConfLogger(serviceName string, logLevel string) *AppLogger {
+	parsedLogLevel, err := logrus.ParseLevel(logLevel)
+	if err != nil {
+		logrus.WithFields(logrus.Fields{"logLevel": logLevel, "err": err}).Fatal("Incorrect log level. Using INFO instead.")
+		parsedLogLevel = logrus.InfoLevel
+	}
+	logrus.SetLevel(parsedLogLevel)
+	log := logrus.New()
+	log.Formatter = new(logrus.JSONFormatter)
+	return &AppLogger{log, serviceName}
+}
+
 func NewLogger(serviceName string) *AppLogger {
 	logrus.SetLevel(logrus.InfoLevel)
 	log := logrus.New()
