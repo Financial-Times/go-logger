@@ -176,26 +176,21 @@ func FatalEvent(message string, err error) {
 
 //****************** SERVICE general structured LOGS ******************
 func Infof(fields map[string]interface{}, message string, args ...interface{}) {
-	fields["service_name"] = logger.serviceName
-	logger.WithFields(fields).Infof(message, args)
+	logger.WithFields(fields).WithField("service_name", logger.serviceName).Infof(message, args)
 }
 
 func Warnf(fields map[string]interface{}, message string, args ...interface{}) {
-	fields["service_name"] = logger.serviceName
-	logger.WithFields(fields).Warnf(message, args)
+	logger.WithFields(fields).WithField("service_name", logger.serviceName).Warnf(message, args)
 }
 
 func Debugf(fields map[string]interface{}, message string, args ...interface{}) {
-	fields["service_name"] = logger.serviceName
-	logger.WithFields(fields).Debugf(message, args)
+	logger.WithFields(fields).WithField("service_name", logger.serviceName).Debugf(message, args)
 }
 
 func Errorf(fields map[string]interface{}, message string, args ...interface{}) {
-	fields["service_name"] = logger.serviceName
-	logger.WithFields(fields).Errorf(message, args)
+	logger.WithFields(fields).WithField("service_name", logger.serviceName).Errorf(message, args)
 }
 
 func Fatalf(fields map[string]interface{}, message string, args ...interface{}) {
-	fields["service_name"] = logger.serviceName
-	logger.WithFields(fields).Fatalf(message, args)
+	logger.WithFields(fields).WithField("service_name", logger.serviceName).Fatalf(message, args)
 }
