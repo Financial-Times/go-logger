@@ -44,7 +44,7 @@ func NewLogger() *logrus.Logger {
 func MonitoringEvent(eventName, tid, contentType, message string) {
 	logger.log.WithFields(logrus.Fields{
 		"event":            eventName,
-		"monitoring_event": true,
+		"monitoring_event": "true",
 		"service_name":     logger.serviceName,
 		"transaction_id":   tid,
 		"content_type":     contentType,
@@ -54,7 +54,7 @@ func MonitoringEvent(eventName, tid, contentType, message string) {
 func MonitoringEventWithUUID(eventName, tid, uuid, contentType, message string) {
 	logger.log.WithFields(logrus.Fields{
 		"event":            eventName,
-		"monitoring_event": true,
+		"monitoring_event": "true",
 		"transaction_id":   tid,
 		"uuid":             uuid,
 		"content_type":     contentType,
