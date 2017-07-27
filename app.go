@@ -1,7 +1,7 @@
 package logger
 
 import (
-	"github.com/sirupsen/logrus"
+	"github.com/Sirupsen/logrus"
 	"strconv"
 )
 

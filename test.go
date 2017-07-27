@@ -1,7 +1,7 @@
 package logger
 
 import (
-	"github.com/sirupsen/logrus/hooks/test"
+	"github.com/Sirupsen/logrus/hooks/test"
 )
 
 func NewTestHook(serviceName string) *test.Hook {
