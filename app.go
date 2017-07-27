@@ -1,7 +1,8 @@
 package logger
 
 import (
-	"github.com/Sirupsen/logrus"
+	"github.com/sirupsen/logrus"
+	"strconv"
 )
 
 type appLogger struct {
@@ -43,7 +44,7 @@ func NewLogger() *logrus.Logger {
 func MonitoringEvent(eventName, tid, contentType, message string) {
 	logger.log.WithFields(logrus.Fields{
 		"event":            eventName,
-		"monitoring_event": true,
+		"monitoring_event": "true",
 		"service_name":     logger.serviceName,
 		"transaction_id":   tid,
 		"content_type":     contentType,
@@ -53,7 +54,7 @@ func MonitoringEvent(eventName, tid, contentType, message string) {
 func MonitoringEventWithUUID(eventName, tid, uuid, contentType, message string) {
 	logger.log.WithFields(logrus.Fields{
 		"event":            eventName,
-		"monitoring_event": true,
+		"monitoring_event": "true",
 		"transaction_id":   tid,
 		"uuid":             uuid,
 		"content_type":     contentType,
@@ -65,22 +66,22 @@ func MonitoringValidationEvent(tid, uuid, contentType, message string, isValid b
 	if isValid {
 		logger.log.WithFields(logrus.Fields{
 			"event":            mappingEvent,
-			"monitoring_event": true,
+			"monitoring_event": "true",
 			"transaction_id":   tid,
 			"uuid":             uuid,
 			"content_type":     contentType,
 			"service_name":     logger.serviceName,
-			"isValid":          isValid,
+			"isValid":          strconv.FormatBool(isValid),
 		}).Info(message)
 	} else {
 		logger.log.WithFields(logrus.Fields{
 			"event":            mappingEvent,
-			"monitoring_event": true,
+			"monitoring_event": "true",
 			"transaction_id":   tid,
 			"uuid":             uuid,
 			"content_type":     contentType,
 			"service_name":     logger.serviceName,
-			"isValid":          isValid,
+			"isValid":          strconv.FormatBool(isValid),
 		}).Error(message)
 	}
 }
