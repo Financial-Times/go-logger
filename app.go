@@ -1,12 +1,12 @@
 package logger
 
 import (
-	"github.com/Sirupsen/logrus"
+	log "github.com/Sirupsen/logrus"
 	"strconv"
 )
 
 type appLogger struct {
-	log         *logrus.Logger
+	*log.Logger
 	serviceName string
 }
 
@@ -18,31 +18,29 @@ const (
 var logger *appLogger
 
 func InitLogger(serviceName string, logLevel string) {
-	parsedLogLevel, err := logrus.ParseLevel(logLevel)
+	parsedLogLevel, err := log.ParseLevel(logLevel)
 	if err != nil {
-		logrus.WithFields(logrus.Fields{"logLevel": logLevel, "err": err}).Fatal("Incorrect log level. Using INFO instead.")
-		parsedLogLevel = logrus.InfoLevel
+		log.WithFields(log.Fields{"logLevel": logLevel, "err": err}).Fatal("Incorrect log level. Using INFO instead.")
+		parsedLogLevel = log.InfoLevel
 	}
-	logrus.SetLevel(parsedLogLevel)
-	log := NewLogger()
-	log.Formatter = new(logrus.JSONFormatter)
-	logger = &appLogger{log, serviceName}
+	log.SetLevel(parsedLogLevel)
+	logger = &appLogger{NewLogger(), serviceName}
+	logger.Formatter = new(log.JSONFormatter)
 }
 
 func InitDefaultLogger(serviceName string) {
-	logrus.SetLevel(logrus.InfoLevel)
-	log := NewLogger()
-	log.Formatter = new(logrus.JSONFormatter)
-	logger = &appLogger{log, serviceName}
+	log.SetLevel(log.InfoLevel)
+	logger = &appLogger{NewLogger(), serviceName}
+	logger.Formatter = new(log.JSONFormatter)
 }
 
-func NewLogger() *logrus.Logger {
-	return logrus.New()
+func NewLogger() *log.Logger {
+	return log.New()
 }
 
 //****************** MONITORING LOGS ******************
 func MonitoringEvent(eventName, tid, contentType, message string) {
-	logger.log.WithFields(logrus.Fields{
+	logger.WithFields(log.Fields{
 		"event":            eventName,
 		"monitoring_event": "true",
 		"service_name":     logger.serviceName,
@@ -52,7 +50,7 @@ func MonitoringEvent(eventName, tid, contentType, message string) {
 }
 
 func MonitoringEventWithUUID(eventName, tid, uuid, contentType, message string) {
-	logger.log.WithFields(logrus.Fields{
+	logger.WithFields(log.Fields{
 		"event":            eventName,
 		"monitoring_event": "true",
 		"transaction_id":   tid,
@@ -64,7 +62,7 @@ func MonitoringEventWithUUID(eventName, tid, uuid, contentType, message string) 
 
 func MonitoringValidationEvent(tid, uuid, contentType, message string, isValid bool) {
 	if isValid {
-		logger.log.WithFields(logrus.Fields{
+		logger.WithFields(log.Fields{
 			"event":            mappingEvent,
 			"monitoring_event": "true",
 			"transaction_id":   tid,
@@ -74,7 +72,7 @@ func MonitoringValidationEvent(tid, uuid, contentType, message string, isValid b
 			"isValid":          strconv.FormatBool(isValid),
 		}).Info(message)
 	} else {
-		logger.log.WithFields(logrus.Fields{
+		logger.WithFields(log.Fields{
 			"event":            mappingEvent,
 			"monitoring_event": "true",
 			"transaction_id":   tid,
@@ -92,7 +90,7 @@ func ServiceStartedEvent(port int) {
 		"service_name": logger.serviceName,
 		"event":        serviceStartedEvent,
 	}
-	logger.log.WithFields(fields).Infof("Service running on port [%d]", port)
+	logger.WithFields(fields).Infof("Service running on port [%d]", port)
 }
 
 func InfoEvent(transactionID string, message string) {
@@ -100,7 +98,7 @@ func InfoEvent(transactionID string, message string) {
 		"service_name":   logger.serviceName,
 		"transaction_id": transactionID,
 	}
-	logger.log.WithFields(fields).Info(message)
+	logger.WithFields(fields).Info(message)
 }
 
 func InfoEventWithUUID(transactionID string, contentUUID string, message string) {
@@ -111,7 +109,7 @@ func InfoEventWithUUID(transactionID string, contentUUID string, message string)
 	if contentUUID != "" {
 		fields["uuid"] = contentUUID
 	}
-	logger.log.WithFields(fields).Info(message)
+	logger.WithFields(fields).Info(message)
 }
 
 func WarnEvent(transactionID string, message string, err error) {
@@ -124,7 +122,7 @@ func WarnEvent(transactionID string, message string, err error) {
 	if transactionID != "" {
 		fields["transaction_id"] = transactionID
 	}
-	logger.log.WithFields(fields).Warn(message)
+	logger.WithFields(fields).Warn(message)
 }
 
 func WarnEventWithUUID(transactionID string, contentUUID string, message string, err error) {
@@ -140,7 +138,7 @@ func WarnEventWithUUID(transactionID string, contentUUID string, message string,
 	if contentUUID != "" {
 		fields["uuid"] = contentUUID
 	}
-	logger.log.WithFields(fields).Warn(message)
+	logger.WithFields(fields).Warn(message)
 }
 
 func ErrorEvent(transactionID string, message string, err error) {
@@ -151,7 +149,7 @@ func ErrorEvent(transactionID string, message string, err error) {
 	if transactionID != "" {
 		fields["transaction_id"] = transactionID
 	}
-	logger.log.WithFields(fields).Error(message)
+	logger.WithFields(fields).Error(message)
 }
 
 func ErrorEventWithUUID(transactionID string, contentUUID string, message string, err error) {
@@ -165,7 +163,7 @@ func ErrorEventWithUUID(transactionID string, contentUUID string, message string
 	if contentUUID != "" {
 		fields["uuid"] = contentUUID
 	}
-	logger.log.WithFields(fields).Error(message)
+	logger.WithFields(fields).Error(message)
 }
 
 func FatalEvent(message string, err error) {
@@ -173,31 +171,31 @@ func FatalEvent(message string, err error) {
 		"service_name": logger.serviceName,
 		"error":        err,
 	}
-	logger.log.WithFields(fields).Fatal(message)
+	logger.WithFields(fields).Fatal(message)
 }
 
 //****************** SERVICE general structured LOGS ******************
 func Infof(fields map[string]interface{}, message string, args ...interface{}) {
 	fields["service_name"] = logger.serviceName
-	logger.log.WithFields(fields).Infof(message, args)
+	logger.WithFields(fields).Infof(message, args)
 }
 
 func Warnf(fields map[string]interface{}, message string, args ...interface{}) {
 	fields["service_name"] = logger.serviceName
-	logger.log.WithFields(fields).Warnf(message, args)
+	logger.WithFields(fields).Warnf(message, args)
 }
 
 func Debugf(fields map[string]interface{}, message string, args ...interface{}) {
 	fields["service_name"] = logger.serviceName
-	logger.log.WithFields(fields).Debugf(message, args)
+	logger.WithFields(fields).Debugf(message, args)
 }
 
 func Errorf(fields map[string]interface{}, message string, args ...interface{}) {
 	fields["service_name"] = logger.serviceName
-	logger.log.WithFields(fields).Errorf(message, args)
+	logger.WithFields(fields).Errorf(message, args)
 }
 
 func Fatalf(fields map[string]interface{}, message string, args ...interface{}) {
 	fields["service_name"] = logger.serviceName
-	logger.log.WithFields(fields).Fatalf(message, args)
+	logger.WithFields(fields).Fatalf(message, args)
 }
