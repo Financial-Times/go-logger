@@ -202,21 +202,21 @@ func FatalEvent(message string, err error) {
 
 //****************** SERVICE general structured LOGS ******************
 func Infof(fields map[string]interface{}, message string, args ...interface{}) {
-	logger.WithFields(fields).WithField("@time", time.Now().Format(timestampFormat)).WithField("service_name", logger.serviceName).Infof(message, args)
+	logger.WithField("service_name", logger.serviceName).WithField("@time", time.Now().Format(timestampFormat)).WithFields(fields).Infof(message, args)
 }
 
 func Warnf(fields map[string]interface{}, message string, args ...interface{}) {
-	logger.WithFields(fields).WithField("@time", time.Now().Format(timestampFormat)).WithField("service_name", logger.serviceName).Warnf(message, args)
+	logger.WithField("service_name", logger.serviceName).WithField("@time", time.Now().Format(timestampFormat)).WithFields(fields).Warnf(message, args)
 }
 
 func Debugf(fields map[string]interface{}, message string, args ...interface{}) {
-	logger.WithFields(fields).WithField("@time", time.Now().Format(timestampFormat)).WithField("service_name", logger.serviceName).Debugf(message, args)
+	logger.WithField("service_name", logger.serviceName).WithField("@time", time.Now().Format(timestampFormat)).WithFields(fields).Debugf(message, args)
 }
 
 func Errorf(fields map[string]interface{}, message string, args ...interface{}) {
-	logger.WithFields(fields).WithField("@time", time.Now().Format(timestampFormat)).WithField("service_name", logger.serviceName).Errorf(message, args)
+	logger.WithField("service_name", logger.serviceName).WithField("@time", time.Now().Format(timestampFormat)).WithFields(fields).Errorf(message, args)
 }
 
 func Fatalf(fields map[string]interface{}, message string, args ...interface{}) {
-	logger.WithFields(fields).WithField("@time", time.Now().Format(timestampFormat)).WithField("service_name", logger.serviceName).Fatalf(message, args)
+	logger.WithField("service_name", logger.serviceName).WithField("@time", time.Now().Format(timestampFormat)).WithFields(fields).Fatalf(message, args)
 }
