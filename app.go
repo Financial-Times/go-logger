@@ -11,9 +11,19 @@ type appLogger struct {
 	serviceName string
 }
 
+type logEntry struct {
+	*log.Entry
+}
+
+type LogEntry interface {
+	log.FieldLogger
+	WithUUID(uuid string) LogEntry
+	WithValidFlag(isValid bool) LogEntry
+	WithTime(time time.Time) LogEntry
+}
+
 const (
 	serviceStartedEvent = "service_started"
-	mappingEvent        = "mapping"
 	timestampFormat     = time.RFC3339
 )
 
@@ -40,69 +50,32 @@ func NewLogger() *log.Logger {
 	return log.New()
 }
 
-//****************** MONITORING LOGS ******************
-func MonitoringEvent(eventName, tid, contentType, message string) {
-	TimedMonitoringEvent(eventName, tid, contentType, message, time.Now())
+func NewMonitoringEntry(eventName, tid, contentType string) LogEntry {
+	return &logEntry{NewEntry(eventName, tid, contentType).WithField("monitoring_event", "true")}
+
+}
+func NewEntry(eventName, tid, contentType string) LogEntry {
+	return &logEntry{logger.WithFields(log.Fields{
+		"@time":          time.Now(),
+		"event":          eventName,
+		"service_name":   logger.serviceName,
+		"transaction_id": tid,
+		"content_type":   contentType,
+	})}
 }
 
-func TimedMonitoringEvent(eventName, tid, contentType, message string, time time.Time) {
-	logger.WithFields(log.Fields{
-		"@time":            time.Format(timestampFormat),
-		"event":            eventName,
-		"monitoring_event": "true",
-		"service_name":     logger.serviceName,
-		"transaction_id":   tid,
-		"content_type":     contentType,
-	}).Info(message)
+func (entry *logEntry) WithUUID(uuid string) LogEntry {
+	return &logEntry{entry.WithField("uuid", uuid)}
 }
 
-func MonitoringEventWithUUID(eventName, tid, uuid, contentType, message string) {
-	TimedMonitoringEventWithUUID(eventName, tid, uuid, contentType, message, time.Now())
+func (entry *logEntry) WithValidFlag(isValid bool) LogEntry {
+	return &logEntry{entry.WithField("isValid", strconv.FormatBool(isValid))}
 }
 
-func TimedMonitoringEventWithUUID(eventName, tid, uuid, contentType, message string, time time.Time) {
-	logger.WithFields(log.Fields{
-		"@time":            time.Format(timestampFormat),
-		"event":            eventName,
-		"monitoring_event": "true",
-		"transaction_id":   tid,
-		"uuid":             uuid,
-		"content_type":     contentType,
-		"service_name":     logger.serviceName,
-	}).Info(message)
+func (entry *logEntry) WithTime(time time.Time) LogEntry {
+	return &logEntry{entry.WithField("time", time.Format(timestampFormat))}
 }
 
-func MonitoringValidationEvent(tid, uuid, contentType, message string, isValid bool) {
-	TimedMonitoringValidationEvent(tid, uuid, contentType, message, isValid, time.Now())
-}
-
-func TimedMonitoringValidationEvent(tid, uuid, contentType, message string, isValid bool, time time.Time) {
-	if isValid {
-		logger.WithFields(log.Fields{
-			"@time":            time.Format(timestampFormat),
-			"event":            mappingEvent,
-			"monitoring_event": "true",
-			"transaction_id":   tid,
-			"uuid":             uuid,
-			"content_type":     contentType,
-			"service_name":     logger.serviceName,
-			"isValid":          strconv.FormatBool(isValid),
-		}).Info(message)
-	} else {
-		logger.WithFields(log.Fields{
-			"@time":            time.Format(timestampFormat),
-			"event":            mappingEvent,
-			"monitoring_event": "true",
-			"transaction_id":   tid,
-			"uuid":             uuid,
-			"content_type":     contentType,
-			"service_name":     logger.serviceName,
-			"isValid":          strconv.FormatBool(isValid),
-		}).Error(message)
-	}
-}
-
-//****************** SERVICE LOGS ******************
 func ServiceStartedEvent(port int) {
 	fields := map[string]interface{}{
 		"@time":        time.Now().Format(timestampFormat),
@@ -112,111 +85,47 @@ func ServiceStartedEvent(port int) {
 	logger.WithFields(fields).Infof("Service running on port [%d]", port)
 }
 
-func InfoEvent(transactionID string, message string) {
-	fields := map[string]interface{}{
-		"@time":          time.Now().Format(timestampFormat),
-		"service_name":   logger.serviceName,
-		"transaction_id": transactionID,
-	}
-	logger.WithFields(fields).Info(message)
-}
-
-func InfoEventWithUUID(transactionID string, contentUUID string, message string) {
-	fields := map[string]interface{}{
-		"@time":          time.Now().Format(timestampFormat),
-		"service_name":   logger.serviceName,
-		"transaction_id": transactionID,
-	}
-	if contentUUID != "" {
-		fields["uuid"] = contentUUID
-	}
-	logger.WithFields(fields).Info(message)
-}
-
-func WarnEvent(transactionID string, message string, err error) {
-	fields := map[string]interface{}{
-		"@time":        time.Now().Format(timestampFormat),
-		"service_name": logger.serviceName,
-	}
-	if err != nil {
-		fields["error"] = err
-	}
-	if transactionID != "" {
-		fields["transaction_id"] = transactionID
-	}
-	logger.WithFields(fields).Warn(message)
-}
-
-func WarnEventWithUUID(transactionID string, contentUUID string, message string, err error) {
-	fields := map[string]interface{}{
-		"@time":        time.Now().Format(timestampFormat),
-		"service_name": logger.serviceName,
-	}
-	if err != nil {
-		fields["error"] = err
-	}
-	if transactionID != "" {
-		fields["transaction_id"] = transactionID
-	}
-	if contentUUID != "" {
-		fields["uuid"] = contentUUID
-	}
-	logger.WithFields(fields).Warn(message)
-}
-
-func ErrorEvent(transactionID string, message string, err error) {
-	fields := map[string]interface{}{
-		"@time":        time.Now().Format(timestampFormat),
-		"service_name": logger.serviceName,
-		"error":        err,
-	}
-	if transactionID != "" {
-		fields["transaction_id"] = transactionID
-	}
-	logger.WithFields(fields).Error(message)
-}
-
-func ErrorEventWithUUID(transactionID string, contentUUID string, message string, err error) {
-	fields := map[string]interface{}{
-		"@time":        time.Now().Format(timestampFormat),
-		"service_name": logger.serviceName,
-		"error":        err,
-	}
-	if transactionID != "" {
-		fields["transaction_id"] = transactionID
-	}
-	if contentUUID != "" {
-		fields["uuid"] = contentUUID
-	}
-	logger.WithFields(fields).Error(message)
-}
-
-func FatalEvent(message string, err error) {
-	fields := map[string]interface{}{
-		"@time":        time.Now().Format(timestampFormat),
-		"service_name": logger.serviceName,
-		"error":        err,
-	}
-	logger.WithFields(fields).Fatal(message)
-}
-
-//****************** SERVICE general structured LOGS ******************
 func Infof(fields map[string]interface{}, message string, args ...interface{}) {
-	logger.WithField("service_name", logger.serviceName).WithField("@time", time.Now().Format(timestampFormat)).WithFields(fields).Infof(message, args)
+	entry := logger.WithField("service_name", logger.serviceName).WithField("@time", time.Now().Format(timestampFormat)).WithFields(fields)
+	if len(args) > 0 {
+		entry.Infof(message, args)
+	} else {
+		entry.Info(message)
+	}
 }
 
 func Warnf(fields map[string]interface{}, message string, args ...interface{}) {
-	logger.WithField("service_name", logger.serviceName).WithField("@time", time.Now().Format(timestampFormat)).WithFields(fields).Warnf(message, args)
+	entry := logger.WithField("service_name", logger.serviceName).WithField("@time", time.Now().Format(timestampFormat)).WithFields(fields)
+	if len(args) > 0 {
+		entry.Warnf(message, args)
+	} else {
+		entry.Warn(message)
+	}
 }
 
 func Debugf(fields map[string]interface{}, message string, args ...interface{}) {
-	logger.WithField("service_name", logger.serviceName).WithField("@time", time.Now().Format(timestampFormat)).WithFields(fields).Debugf(message, args)
+	entry := logger.WithField("service_name", logger.serviceName).WithField("@time", time.Now().Format(timestampFormat)).WithFields(fields)
+	if len(args) > 0 {
+		entry.Debugf(message, args)
+	} else {
+		entry.Debug(message)
+	}
 }
 
 func Errorf(fields map[string]interface{}, message string, args ...interface{}) {
-	logger.WithField("service_name", logger.serviceName).WithField("@time", time.Now().Format(timestampFormat)).WithFields(fields).Errorf(message, args)
+	entry := logger.WithField("service_name", logger.serviceName).WithField("@time", time.Now().Format(timestampFormat)).WithFields(fields)
+	if len(args) > 0 {
+		entry.Errorf(message, args)
+	} else {
+		entry.Error(message)
+	}
 }
 
 func Fatalf(fields map[string]interface{}, message string, args ...interface{}) {
-	logger.WithField("service_name", logger.serviceName).WithField("@time", time.Now().Format(timestampFormat)).WithFields(fields).Fatalf(message, args)
+	entry := logger.WithField("service_name", logger.serviceName).WithField("@time", time.Now().Format(timestampFormat)).WithFields(fields)
+	if len(args) > 0 {
+		entry.Fatalf(message, args)
+	} else {
+		entry.Fatal(message)
+	}
 }
