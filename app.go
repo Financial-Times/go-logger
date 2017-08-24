@@ -51,13 +51,12 @@ func NewLogger() *log.Logger {
 }
 
 func NewMonitoringEntry(eventName, tid, contentType string) LogEntry {
-	return &logEntry{NewEntry(eventName, tid, contentType).WithField("monitoring_event", "true")}
+	return &logEntry{NewEntry(tid, contentType).WithField("monitoring_event", "true").WithField("event", eventName)}
 
 }
-func NewEntry(eventName, tid, contentType string) LogEntry {
+func NewEntry(tid, contentType string) LogEntry {
 	return &logEntry{logger.WithFields(log.Fields{
 		"@time":          time.Now(),
-		"event":          eventName,
 		"service_name":   logger.serviceName,
 		"transaction_id": tid,
 		"content_type":   contentType,
