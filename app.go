@@ -113,8 +113,11 @@ func Debugf(fields map[string]interface{}, message string, args ...interface{}) 
 	}
 }
 
-func Errorf(fields map[string]interface{}, message string, args ...interface{}) {
+func Errorf(fields map[string]interface{}, err error, message string, args ...interface{}) {
 	entry := logger.WithField("service_name", logger.serviceName).WithField("@time", time.Now().Format(timestampFormat)).WithFields(fields)
+	if err != nil {
+		entry = entry.WithError(err)
+	}
 	if len(args) > 0 {
 		entry.Errorf(message, args)
 	} else {
@@ -122,8 +125,11 @@ func Errorf(fields map[string]interface{}, message string, args ...interface{}) 
 	}
 }
 
-func Fatalf(fields map[string]interface{}, message string, args ...interface{}) {
+func Fatalf(fields map[string]interface{}, err error, message string, args ...interface{}) {
 	entry := logger.WithField("service_name", logger.serviceName).WithField("@time", time.Now().Format(timestampFormat)).WithFields(fields)
+	if err != nil {
+		entry = entry.WithError(err)
+	}
 	if len(args) > 0 {
 		entry.Fatalf(message, args)
 	} else {
