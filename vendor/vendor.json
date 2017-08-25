@@ -9,11 +9,11 @@
 			"revisionTime": "2017-02-07T18:34:08Z"
 		},
 		{
-			"checksumSHA1": "VLLpfioPkGDIhtY86DHsZaCPXQo=",
+			"checksumSHA1": "Lglgc8iIRhqbqd8fpAZKpo/eqeY=",
 			"path": "github.com/Sirupsen/logrus/hooks/test",
-			"revision": "a62b1531c0b6f08944e96850e76a95a1dd6e8f9b",
-			"revisionTime": "2017-05-25T00:53:41Z"
-		}
+			"revision": "26809363aac4cc10d49171447009ac6bccc9c655",
+			"revisionTime": "2016-12-01T23:53:00Z"
+		},
 	],
 	"rootPath": "github.com/Financial-Times/go-logger"
 }
