@@ -2,8 +2,8 @@ package logger
 
 import (
 	//using the original logrus test implementation, to test the local logger's format
-	"github.com/Sirupsen/logrus"
-	testLogger "github.com/Sirupsen/logrus/hooks/test"
+	"github.com/sirupsen/logrus"
+	testLogger "github.com/sirupsen/logrus/hooks/test"
 	"github.com/stretchr/testify/assert"
 	"testing"
 )
