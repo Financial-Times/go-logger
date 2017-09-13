@@ -1,22 +1,17 @@
 package logger
 
 import (
-	log "github.com/sirupsen/logrus"
+	"github.com/sirupsen/logrus"
 	"strconv"
 	"time"
 )
 
-type appLogger struct {
-	*log.Logger
-	serviceName string
-}
-
 type logEntry struct {
-	*log.Entry
+	*logrus.Entry
 }
 
 type LogEntry interface {
-	log.FieldLogger
+	logrus.FieldLogger
 	WithUUID(uuid string) LogEntry
 	WithValidFlag(isValid bool) LogEntry
 	WithTime(time time.Time) LogEntry
@@ -27,27 +22,18 @@ const (
 	timestampFormat     = time.RFC3339
 )
 
-var logger *appLogger
-
 func InitLogger(serviceName string, logLevel string) {
-	parsedLogLevel, err := log.ParseLevel(logLevel)
+	parsedLogLevel, err := logrus.ParseLevel(logLevel)
 	if err != nil {
-		log.WithFields(log.Fields{"logLevel": logLevel, "err": err}).Fatal("Incorrect log level. Using INFO instead.")
-		parsedLogLevel = log.InfoLevel
+		logrus.WithFields(logrus.Fields{"logLevel": logLevel, "err": err}).Fatal("Incorrect log level. Using INFO instead.")
+		parsedLogLevel = logrus.InfoLevel
 	}
-	log.SetLevel(parsedLogLevel)
-	logger = &appLogger{NewLogger(), serviceName}
-	logger.Formatter = &log.JSONFormatter{DisableTimestamp: true}
+	logrus.SetLevel(parsedLogLevel)
+	logrus.SetFormatter(newFTJSONFormatter(serviceName))
 }
 
 func InitDefaultLogger(serviceName string) {
-	log.SetLevel(log.InfoLevel)
-	logger = &appLogger{NewLogger(), serviceName}
-	logger.Formatter = &log.JSONFormatter{DisableTimestamp: true}
-}
-
-func NewLogger() *log.Logger {
-	return log.New()
+	InitLogger(serviceName, logrus.InfoLevel.String())
 }
 
 func NewMonitoringEntry(eventName, tid, contentType string) LogEntry {
@@ -58,11 +44,7 @@ func NewMonitoringEntry(eventName, tid, contentType string) LogEntry {
 
 }
 func NewEntry(tid string) LogEntry {
-	return &logEntry{logger.WithFields(log.Fields{
-		"@time":          time.Now(),
-		"service_name":   logger.serviceName,
-		"transaction_id": tid,
-	})}
+	return &logEntry{logrus.WithField("transaction_id", tid)}
 }
 
 func (entry *logEntry) WithUUID(uuid string) LogEntry {
@@ -79,15 +61,13 @@ func (entry *logEntry) WithTime(time time.Time) LogEntry {
 
 func ServiceStartedEvent(port int) {
 	fields := map[string]interface{}{
-		"@time":        time.Now().Format(timestampFormat),
-		"service_name": logger.serviceName,
-		"event":        serviceStartedEvent,
+		"event": serviceStartedEvent,
 	}
-	logger.WithFields(fields).Infof("Service running on port [%d]", port)
+	logrus.WithFields(fields).Infof("Service running on port [%d]", port)
 }
 
 func Infof(fields map[string]interface{}, message string, args ...interface{}) {
-	entry := logger.WithField("service_name", logger.serviceName).WithField("@time", time.Now().Format(timestampFormat)).WithFields(fields)
+	entry := logrus.WithFields(fields)
 	if len(args) > 0 {
 		entry.Infof(message, args)
 	} else {
@@ -96,7 +76,7 @@ func Infof(fields map[string]interface{}, message string, args ...interface{}) {
 }
 
 func Warnf(fields map[string]interface{}, message string, args ...interface{}) {
-	entry := logger.WithField("service_name", logger.serviceName).WithField("@time", time.Now().Format(timestampFormat)).WithFields(fields)
+	entry := logrus.WithFields(fields)
 	if len(args) > 0 {
 		entry.Warnf(message, args)
 	} else {
@@ -105,7 +85,7 @@ func Warnf(fields map[string]interface{}, message string, args ...interface{}) {
 }
 
 func Debugf(fields map[string]interface{}, message string, args ...interface{}) {
-	entry := logger.WithField("service_name", logger.serviceName).WithField("@time", time.Now().Format(timestampFormat)).WithFields(fields)
+	entry := logrus.WithFields(fields)
 	if len(args) > 0 {
 		entry.Debugf(message, args)
 	} else {
@@ -114,7 +94,7 @@ func Debugf(fields map[string]interface{}, message string, args ...interface{}) 
 }
 
 func Errorf(fields map[string]interface{}, err error, message string, args ...interface{}) {
-	entry := logger.WithField("service_name", logger.serviceName).WithField("@time", time.Now().Format(timestampFormat)).WithFields(fields)
+	entry := logrus.WithFields(fields)
 	if err != nil {
 		entry = entry.WithError(err)
 	}
@@ -126,7 +106,7 @@ func Errorf(fields map[string]interface{}, err error, message string, args ...in
 }
 
 func Fatalf(fields map[string]interface{}, err error, message string, args ...interface{}) {
-	entry := logger.WithField("service_name", logger.serviceName).WithField("@time", time.Now().Format(timestampFormat)).WithFields(fields)
+	entry := logrus.WithFields(fields)
 	if err != nil {
 		entry = entry.WithError(err)
 	}

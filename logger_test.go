@@ -12,8 +12,8 @@ import (
 func TestLoggerInit(t *testing.T) {
 
 	InitDefaultLogger("test_service")
+	hook := testLogger.NewGlobal()
 
-	hook := testLogger.NewLocal(logger.Logger)
 	assert.Nil(t, hook.LastEntry())
 	assert.Equal(t, 0, len(hook.Entries))
 
