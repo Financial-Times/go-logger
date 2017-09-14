@@ -24,7 +24,7 @@ type LogEntry interface {
 
 const (
 	serviceStartedEvent = "service_started"
-	timestampFormat     = time.RFC3339
+	timestampFormat     = time.RFC3339Nano
 )
 
 var logger *appLogger
@@ -59,7 +59,7 @@ func NewMonitoringEntry(eventName, tid, contentType string) LogEntry {
 }
 func NewEntry(tid string) LogEntry {
 	return &logEntry{logger.WithFields(log.Fields{
-		"@time":          time.Now(),
+		"@time":          time.Now().Format(timestampFormat),
 		"service_name":   logger.serviceName,
 		"transaction_id": tid,
 	})}
