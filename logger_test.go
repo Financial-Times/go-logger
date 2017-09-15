@@ -17,7 +17,7 @@ func TestLoggerInit(t *testing.T) {
 	assert.Nil(t, hook.LastEntry())
 	assert.Equal(t, 0, len(hook.Entries))
 
-	Infof(nil, "[Startup] annotations-monitoring-service is starting")
+	Infof("[Startup] annotations-monitoring-service is starting")
 
 	assert.Equal(t, logrus.InfoLevel, hook.LastEntry().Level)
 	assert.Contains(t, hook.LastEntry().Message, "[Startup] annotations-monitoring-service is starting")
