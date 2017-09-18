@@ -22,7 +22,7 @@ func WithField(key string, value interface{}) *logrus.Entry {
 //
 // Note that it doesn't log until you call Debug, Print, Info, Warn, Fatal
 // or Panic on the Entry it returns.
-func WithFields(fields logrus.Fields) *logrus.Entry {
+func WithFields(fields map[string]interface{}) *logrus.Entry {
 	return logrus.WithFields(fields)
 }
 
