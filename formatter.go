@@ -8,6 +8,7 @@ import (
 
 const (
 	fieldKeyTime        = "@time"
+	fieldKeyLogTime     = "logTime"
 	fieldKeyServiceName = "service_name"
 )
 
@@ -33,7 +34,12 @@ func (f *ftJSONFormatter) Format(entry *logrus.Entry) ([]byte, error) {
 		}
 	}
 
-	data[fieldKeyTime] = entry.Time.Format(timestampFormat)
+	if _, found := data[fieldKeyTime]; found {
+		data[fieldKeyLogTime] = entry.Time.Format(timestampFormat)
+	} else {
+		data[fieldKeyTime] = entry.Time.Format(timestampFormat)
+	}
+
 	data[logrus.FieldKeyMsg] = entry.Message
 	data[logrus.FieldKeyLevel] = entry.Level.String()
 	data[fieldKeyServiceName] = f.serviceName

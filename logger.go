@@ -19,7 +19,7 @@ type LogEntry interface {
 
 const (
 	serviceStartedEvent = "service_started"
-	timestampFormat     = time.RFC3339
+	timestampFormat     = time.RFC3339Nano
 )
 
 func InitLogger(serviceName string, logLevel string) {
@@ -56,7 +56,7 @@ func (entry *logEntry) WithValidFlag(isValid bool) LogEntry {
 }
 
 func (entry *logEntry) WithTime(time time.Time) LogEntry {
-	return &logEntry{entry.WithField("time", time.Format(timestampFormat))}
+	return &logEntry{entry.WithField(fieldKeyTime, time.Format(timestampFormat))}
 }
 
 func ServiceStartedEvent(port int) {
