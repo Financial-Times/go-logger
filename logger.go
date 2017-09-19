@@ -22,6 +22,13 @@ const (
 	timestampFormat     = time.RFC3339Nano
 )
 
+var formatter *ftJSONFormatter
+
+func init() {
+	formatter = newFTJSONFormatter()
+	logrus.SetFormatter(newFTJSONFormatter())
+}
+
 func InitLogger(serviceName string, logLevel string) {
 	parsedLogLevel, err := logrus.ParseLevel(logLevel)
 	if err != nil {
@@ -29,7 +36,7 @@ func InitLogger(serviceName string, logLevel string) {
 		parsedLogLevel = logrus.InfoLevel
 	}
 	logrus.SetLevel(parsedLogLevel)
-	logrus.SetFormatter(newFTJSONFormatter(serviceName))
+	formatter.serviceName = serviceName
 }
 
 func InitDefaultLogger(serviceName string) {

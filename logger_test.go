@@ -3,7 +3,6 @@ package logger
 import (
 	//using the original logrus test implementation, to test the local logger's format
 	"github.com/sirupsen/logrus"
-	testLogger "github.com/sirupsen/logrus/hooks/test"
 	"github.com/stretchr/testify/assert"
 	"math/rand"
 	"testing"
@@ -12,9 +11,7 @@ import (
 
 //TODO add some more relevant tests
 func TestLoggerInit(t *testing.T) {
-
-	InitDefaultLogger("test_service")
-	hook := testLogger.NewGlobal()
+	hook := NewTestHook("test_service")
 
 	assert.Nil(t, hook.LastEntry())
 	assert.Equal(t, 0, len(hook.Entries))

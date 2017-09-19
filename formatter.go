@@ -2,6 +2,7 @@ package logger
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"github.com/sirupsen/logrus"
 )
@@ -16,13 +17,15 @@ type ftJSONFormatter struct {
 	serviceName string
 }
 
-func newFTJSONFormatter(serviceName string) logrus.Formatter {
-	return &ftJSONFormatter{
-		serviceName: serviceName,
-	}
+func newFTJSONFormatter() *ftJSONFormatter {
+	return &ftJSONFormatter{}
 }
 
 func (f *ftJSONFormatter) Format(entry *logrus.Entry) ([]byte, error) {
+	if f.serviceName == "" {
+		return []byte{}, errors.New("logger is not initialised - please use InitLogger or InitDefaultLogger function")
+	}
+
 	data := make(logrus.Fields, len(entry.Data)+4)
 	for k, v := range entry.Data {
 		switch v := v.(type) {

@@ -20,7 +20,8 @@ const (
 )
 
 func TestFtJSONFormatter(t *testing.T) {
-	f := newFTJSONFormatter(testServiceName)
+	f := newFTJSONFormatter()
+	f.serviceName = testServiceName
 	e := NewMonitoringEntry(testEvent, testTID, testContentType).WithError(errors.New(testErrMsg))
 	e.Time = time.Now()
 	e.Message = testMsg
@@ -50,7 +51,8 @@ func TestFtJSONFormatter(t *testing.T) {
 
 func TestFtJSONFormatterWithLogTimeField(t *testing.T) {
 	myExpectedTime := time.Unix(rand.Int63n(time.Now().Unix()), rand.Int63n(1000000000))
-	f := newFTJSONFormatter(testServiceName)
+	f := newFTJSONFormatter()
+	f.serviceName = testServiceName
 	e := NewMonitoringEntry(testEvent, testTID, testContentType).WithTime(myExpectedTime).
 		WithError(errors.New(testErrMsg))
 	e.Time = time.Now()
@@ -80,4 +82,17 @@ func TestFtJSONFormatterWithLogTimeField(t *testing.T) {
 	assert.Equal(t, testMsg, logLine[logrus.FieldKeyMsg])
 	assert.Equal(t, logrus.InfoLevel.String(), logLine[logrus.FieldKeyLevel])
 	assert.Equal(t, "true", logLine["monitoring_event"])
+}
+
+func TestLoggerWithoutInitialisation(t *testing.T) {
+	f := newFTJSONFormatter()
+	e := NewEntry("tid_test").WithError(errors.New(testErrMsg))
+	e.Time = time.Now()
+	e.Message = testMsg
+	e.Level = logrus.ErrorLevel
+
+	logLineBytes, err := f.Format(e)
+
+	assert.Empty(t, logLineBytes)
+	assert.EqualError(t, err, "logger is not initialised - please use InitLogger or InitDefaultLogger function")
 }
