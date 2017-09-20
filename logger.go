@@ -22,20 +22,20 @@ const (
 	timestampFormat     = time.RFC3339Nano
 )
 
-var formatter *ftJSONFormatter
+var log = logrus.New()
+var formatter = newFTJSONFormatter()
 
 func init() {
-	formatter = newFTJSONFormatter()
-	logrus.SetFormatter(newFTJSONFormatter())
+	log.Formatter = formatter
 }
 
 func InitLogger(serviceName string, logLevel string) {
 	parsedLogLevel, err := logrus.ParseLevel(logLevel)
 	if err != nil {
-		logrus.WithFields(logrus.Fields{"logLevel": logLevel, "err": err}).Fatal("Incorrect log level. Using INFO instead.")
+		log.WithFields(logrus.Fields{"logLevel": logLevel, "err": err}).Fatal("Incorrect log level. Using INFO instead.")
 		parsedLogLevel = logrus.InfoLevel
 	}
-	logrus.SetLevel(parsedLogLevel)
+	log.SetLevel(parsedLogLevel)
 	formatter.serviceName = serviceName
 }
 
@@ -51,7 +51,7 @@ func NewMonitoringEntry(eventName, tid, contentType string) LogEntry {
 
 }
 func NewEntry(tid string) LogEntry {
-	return &logEntry{logrus.WithField("transaction_id", tid)}
+	return &logEntry{log.WithField("transaction_id", tid)}
 }
 
 func (entry *logEntry) WithUUID(uuid string) LogEntry {
@@ -70,5 +70,5 @@ func ServiceStartedEvent(port int) {
 	fields := map[string]interface{}{
 		"event": serviceStartedEvent,
 	}
-	logrus.WithFields(fields).Infof("Service running on port [%d]", port)
+	log.WithFields(fields).Infof("Service running on port [%d]", port)
 }

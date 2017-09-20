@@ -6,5 +6,5 @@ import (
 
 func NewTestHook(serviceName string) *test.Hook {
 	InitDefaultLogger(serviceName)
-	return test.NewGlobal()
+	return test.NewLocal(log)
 }
