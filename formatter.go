@@ -9,7 +9,6 @@ import (
 
 const (
 	fieldKeyTime        = "@time"
-	fieldKeyLogTime     = "logTime"
 	fieldKeyServiceName = "service_name"
 )
 
@@ -26,7 +25,7 @@ func (f *ftJSONFormatter) Format(entry *logrus.Entry) ([]byte, error) {
 		return []byte{}, errors.New("logger is not initialised - please use InitLogger or InitDefaultLogger function")
 	}
 
-	data := make(logrus.Fields, len(entry.Data)+4)
+	data := make(logrus.Fields)
 	for k, v := range entry.Data {
 		switch v := v.(type) {
 		case error:
@@ -37,9 +36,7 @@ func (f *ftJSONFormatter) Format(entry *logrus.Entry) ([]byte, error) {
 		}
 	}
 
-	if _, found := data[fieldKeyTime]; found {
-		data[fieldKeyLogTime] = entry.Time.Format(timestampFormat)
-	} else {
+	if _, found := data[fieldKeyTime]; !found {
 		data[fieldKeyTime] = entry.Time.Format(timestampFormat)
 	}
 

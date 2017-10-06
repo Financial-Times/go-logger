@@ -22,7 +22,7 @@ const (
 func TestFtJSONFormatter(t *testing.T) {
 	f := newFTJSONFormatter()
 	f.serviceName = testServiceName
-	e := NewMonitoringEntry(testEvent, testTID, testContentType).WithError(errors.New(testErrMsg))
+	e := WithMonitoringEvent(testEvent, testTID, testContentType).WithError(errors.New(testErrMsg))
 	e.Time = time.Now()
 	e.Message = testMsg
 	e.Level = logrus.InfoLevel
@@ -53,7 +53,7 @@ func TestFtJSONFormatterWithLogTimeField(t *testing.T) {
 	myExpectedTime := time.Unix(rand.Int63n(time.Now().Unix()), rand.Int63n(1000000000))
 	f := newFTJSONFormatter()
 	f.serviceName = testServiceName
-	e := NewMonitoringEntry(testEvent, testTID, testContentType).WithTime(myExpectedTime).
+	e := WithMonitoringEvent(testEvent, testTID, testContentType).WithTime(myExpectedTime).
 		WithError(errors.New(testErrMsg))
 	e.Time = time.Now()
 	e.Message = testMsg
@@ -65,11 +65,7 @@ func TestFtJSONFormatterWithLogTimeField(t *testing.T) {
 	var logLine map[string]string
 	err = json.Unmarshal(logLineBytes, &logLine)
 	assert.NoError(t, err)
-	assert.Len(t, logLine, 10)
-
-	actualTime, err := time.Parse(timestampFormat, logLine[fieldKeyLogTime])
-	assert.NoError(t, err)
-	assert.WithinDuration(t, time.Now(), actualTime, 1*time.Second)
+	assert.Len(t, logLine, 9)
 
 	myActualTime, err := time.Parse(timestampFormat, logLine[fieldKeyTime])
 	assert.WithinDuration(t, myExpectedTime, myActualTime, 0)
@@ -86,7 +82,7 @@ func TestFtJSONFormatterWithLogTimeField(t *testing.T) {
 
 func TestLoggerWithoutInitialisation(t *testing.T) {
 	f := newFTJSONFormatter()
-	e := NewEntry("tid_test").WithError(errors.New(testErrMsg))
+	e := WithMonitoringEvent(testEvent, testTID, testContentType).WithError(errors.New(testErrMsg))
 	e.Time = time.Now()
 	e.Message = testMsg
 	e.Level = logrus.ErrorLevel

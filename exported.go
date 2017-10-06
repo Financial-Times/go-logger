@@ -3,8 +3,8 @@ package logger
 import "github.com/sirupsen/logrus"
 
 // WithError creates an entry from the standard logger and adds an error to it, using the value defined in ErrorKey as key.
-func WithError(err error) *logrus.Entry {
-	return log.WithField(logrus.ErrorKey, err)
+func WithError(err error) LogEntry {
+	return &logEntry{log.WithField(logrus.ErrorKey, err)}
 }
 
 // WithField creates an entry from the standard logger and adds a field to
@@ -12,8 +12,8 @@ func WithError(err error) *logrus.Entry {
 //
 // Note that it doesn't log until you call Debug, Print, Info, Warn, Fatal
 // or Panic on the Entry it returns.
-func WithField(key string, value interface{}) *logrus.Entry {
-	return log.WithField(key, value)
+func WithField(key string, value interface{}) LogEntry {
+	return &logEntry{log.WithField(key, value)}
 }
 
 // WithFields creates an entry from the standard logger and adds multiple
@@ -22,8 +22,21 @@ func WithField(key string, value interface{}) *logrus.Entry {
 //
 // Note that it doesn't log until you call Debug, Print, Info, Warn, Fatal
 // or Panic on the Entry it returns.
-func WithFields(fields map[string]interface{}) *logrus.Entry {
-	return log.WithFields(fields)
+func WithFields(fields map[string]interface{}) LogEntry {
+	return &logEntry{log.WithFields(fields)}
+}
+
+func WithTransactionID(tid string) LogEntry {
+	return &logEntry{log.WithField("transaction_id", tid)}
+}
+
+func WithMonitoringEvent(eventName, tid, contentType string) LogEntry {
+	e := &logEntry{
+		log.WithField("monitoring_event", "true").
+			WithField("event", eventName).
+			WithField("content_type", contentType),
+	}
+	return e.WithTransactionID(tid)
 }
 
 // Debug logs a message at level Debug on the standard logger.
