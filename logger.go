@@ -18,13 +18,13 @@ func init() {
 }
 
 func InitLogger(serviceName string, logLevel string) {
+	formatter.serviceName = serviceName
 	parsedLogLevel, err := logrus.ParseLevel(logLevel)
 	if err != nil {
-		log.WithFields(logrus.Fields{"logLevel": logLevel, "err": err}).Fatal("Incorrect log level. Using INFO instead.")
+		log.WithField("logLevel", logLevel).WithError(err).Error("Incorrect log level. Using INFO instead.")
 		parsedLogLevel = logrus.InfoLevel
 	}
 	log.SetLevel(parsedLogLevel)
-	formatter.serviceName = serviceName
 }
 
 func InitDefaultLogger(serviceName string) {
