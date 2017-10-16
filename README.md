@@ -10,20 +10,20 @@ Note: You can still create your own standard logger by using the `NewLogger` fun
 
 
 ### Logging a Monitoring Event
-The library maintains most of the Logrus's way of logging, but it adds some default fields 
-(`@time`, `transaction_id` and `service_name`) to facilitate monitoring of relevant application events.
+The library is Logrus compatible, but it includes a few default fields, 
+which help facilitate the monitoring of key application events (`@time`, `transaction_id` and `service_name`).
 You can add a monitoring event to a log entry by using the following method:
 - `WithMonitoringEvent` - with `transaction_id`, `eventName` and `contentType` as parameters. 
-Beside these, a `monitoring_event=true` field will also be added to the entry. 
+A `monitoring_event=true` field will also be added to the entry. 
 This message will be picked up by the monitoring services and dashboards.
 
 ### Adding additional fields to the Entry
 
 Beside the With... fields offered by the original Logrus Entry, the following methods can be used:
 - `WithTransactionID`, to add a transaction ID to the log entry;
-- `WithUUID`, To add a UUID to the log entry;
-- `WithTime`, to set a custom time of the logging entry; 
-- `WithValidFlag` to mark the if a message processed by an application is valid. 
+- `WithUUID`, to add a UUID to the log entry;
+- `WithTime`, to set a custom time of the logging entry (this can be used to influence Splunk log time); 
+- `WithValidFlag` to mark if a message processed by an application succeeded or not. 
 Invalid messages will be ignored by some of the monitoring statistics (SLAs).
 
 ### Actual Logging
