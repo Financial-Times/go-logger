@@ -5,6 +5,7 @@ import (
 	"github.com/sirupsen/logrus/hooks/test"
 	"github.com/stretchr/testify/assert"
 	"math/rand"
+	"strconv"
 	"testing"
 	"time"
 )
@@ -53,7 +54,9 @@ func TestLogEntryWithValidFlagTrue(t *testing.T) {
 	assert.Len(t, hook.LastEntry().Data, 5)
 	assert.Equal(t, logrus.InfoLevel, hook.LastEntry().Level)
 	assert.Equal(t, "a info message", hook.LastEntry().Message)
-	assert.True(t, hook.LastEntry().Data["isValid"].(bool))
+	isValid, err := strconv.ParseBool(hook.LastEntry().Data["isValid"].(string))
+	assert.NoError(t, err)
+	assert.True(t, isValid)
 	assert.Equal(t, "tid_test", hook.LastEntry().Data["transaction_id"])
 }
 
@@ -67,6 +70,8 @@ func TestLogEntryWithValidFlagFalse(t *testing.T) {
 	assert.Len(t, hook.LastEntry().Data, 5)
 	assert.Equal(t, logrus.InfoLevel, hook.LastEntry().Level)
 	assert.Equal(t, "a info message", hook.LastEntry().Message)
-	assert.False(t, hook.LastEntry().Data["isValid"].(bool))
+	isValid, err := strconv.ParseBool(hook.LastEntry().Data["isValid"].(string))
+	assert.NoError(t, err)
+	assert.False(t, isValid)
 	assert.Equal(t, "tid_test", hook.LastEntry().Data["transaction_id"])
 }

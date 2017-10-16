@@ -3,6 +3,7 @@ package test
 import (
 	"github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/assert"
+	"strconv"
 	"testing"
 	"time"
 )
@@ -36,7 +37,7 @@ func (a *LoggingAssert) HasMonitoringEvent(expectedEventName, expectedTID, expec
 }
 
 func (a *LoggingAssert) HasValidFlag(expectedFlag bool) *LoggingAssert {
-	return a.HasField("isValid", expectedFlag)
+	return a.HasField("isValid", strconv.FormatBool(expectedFlag))
 }
 
 func (a *LoggingAssert) HasTransactionID(expectedTID string) *LoggingAssert {
