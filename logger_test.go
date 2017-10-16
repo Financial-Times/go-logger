@@ -8,7 +8,8 @@ import (
 )
 
 func TestLoggerInit(t *testing.T) {
-	hook := NewTestHook("test_service")
+	InitDefaultLogger("test_service")
+	hook := test.NewLocal(Logger())
 
 	assert.Nil(t, hook.LastEntry())
 	assert.Equal(t, 0, len(hook.Entries))
@@ -21,7 +22,7 @@ func TestLoggerInit(t *testing.T) {
 }
 
 func TestInitLoggerFatal(t *testing.T) {
-	hook := test.NewLocal(log)
+	hook := test.NewLocal(Logger())
 
 	InitLogger("test_service", "a-level-that-do-not-exist")
 

@@ -2,15 +2,16 @@ package logger
 
 import (
 	"github.com/sirupsen/logrus"
+	"github.com/sirupsen/logrus/hooks/test"
 	"github.com/stretchr/testify/assert"
 	"math/rand"
-	"strconv"
 	"testing"
 	"time"
 )
 
 func TestLogEntryWithTime(t *testing.T) {
-	hook := NewTestHook("test_service")
+	InitDefaultLogger("test_service")
+	hook := test.NewLocal(Logger())
 
 	myExpectedTime := time.Unix(rand.Int63n(time.Now().Unix()), rand.Int63n(1000000000))
 	WithMonitoringEvent("an-event", "tid_test", "some-content").WithTime(myExpectedTime).Info("This is a custom time for my event")
@@ -27,7 +28,8 @@ func TestLogEntryWithTime(t *testing.T) {
 }
 
 func TestLogEntryWithTransactionID(t *testing.T) {
-	hook := NewTestHook("test_service")
+	InitDefaultLogger("test_service")
+	hook := test.NewLocal(Logger())
 
 	expectedUUID := "50484f2a-a51d-42d8-8deb-11a1d25e6b45"
 
@@ -42,7 +44,8 @@ func TestLogEntryWithTransactionID(t *testing.T) {
 }
 
 func TestLogEntryWithValidFlagTrue(t *testing.T) {
-	hook := NewTestHook("test_service")
+	InitDefaultLogger("test_service")
+	hook := test.NewLocal(Logger())
 
 	WithMonitoringEvent("an-event", "tid_test", "some-content").WithValidFlag(true).Info("a info message")
 
@@ -50,14 +53,13 @@ func TestLogEntryWithValidFlagTrue(t *testing.T) {
 	assert.Len(t, hook.LastEntry().Data, 5)
 	assert.Equal(t, logrus.InfoLevel, hook.LastEntry().Level)
 	assert.Equal(t, "a info message", hook.LastEntry().Message)
-	actualValidFlag, err := strconv.ParseBool(hook.LastEntry().Data["isValid"].(string))
-	assert.NoError(t, err)
-	assert.True(t, actualValidFlag)
+	assert.True(t, hook.LastEntry().Data["isValid"].(bool))
 	assert.Equal(t, "tid_test", hook.LastEntry().Data["transaction_id"])
 }
 
 func TestLogEntryWithValidFlagFalse(t *testing.T) {
-	hook := NewTestHook("test_service")
+	InitDefaultLogger("test_service")
+	hook := test.NewLocal(Logger())
 
 	WithMonitoringEvent("an-event", "tid_test", "some-content").WithValidFlag(false).Info("a info message")
 
@@ -65,8 +67,6 @@ func TestLogEntryWithValidFlagFalse(t *testing.T) {
 	assert.Len(t, hook.LastEntry().Data, 5)
 	assert.Equal(t, logrus.InfoLevel, hook.LastEntry().Level)
 	assert.Equal(t, "a info message", hook.LastEntry().Message)
-	actualValidFlag, err := strconv.ParseBool(hook.LastEntry().Data["isValid"].(string))
-	assert.NoError(t, err)
-	assert.False(t, actualValidFlag)
+	assert.False(t, hook.LastEntry().Data["isValid"].(bool))
 	assert.Equal(t, "tid_test", hook.LastEntry().Data["transaction_id"])
 }

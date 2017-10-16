@@ -2,12 +2,14 @@ package logger
 
 import (
 	"github.com/sirupsen/logrus"
+	"github.com/sirupsen/logrus/hooks/test"
 	"github.com/stretchr/testify/assert"
 	"testing"
 )
 
 func TestWithMonitoringEvent(t *testing.T) {
-	hook := NewTestHook("test_service")
+	InitDefaultLogger("test_service")
+	hook := test.NewLocal(Logger())
 
 	WithMonitoringEvent("an-event", "tid_test", "some-content").Info("a info message")
 
@@ -19,7 +21,8 @@ func TestWithMonitoringEvent(t *testing.T) {
 }
 
 func TestWithTransactionID(t *testing.T) {
-	hook := NewTestHook("test_service")
+	InitDefaultLogger("test_service")
+	hook := test.NewLocal(Logger())
 
 	WithTransactionID("tid_test").Info("a info message")
 

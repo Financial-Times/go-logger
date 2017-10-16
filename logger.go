@@ -2,12 +2,10 @@ package logger
 
 import (
 	"github.com/sirupsen/logrus"
-	"time"
 )
 
 const (
 	serviceStartedEvent = "service_started"
-	timestampFormat     = time.RFC3339Nano
 )
 
 var log = logrus.New()
@@ -36,4 +34,8 @@ func ServiceStartedEvent(port int) {
 		"event": serviceStartedEvent,
 	}
 	log.WithFields(fields).Infof("Service running on port [%d]", port)
+}
+
+func Logger() *logrus.Logger {
+	return log
 }

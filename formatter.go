@@ -5,9 +5,12 @@ import (
 	"errors"
 	"fmt"
 	"github.com/sirupsen/logrus"
+	"time"
 )
 
 const (
+	timestampFormat = time.RFC3339Nano
+
 	fieldKeyTime        = "@time"
 	fieldKeyServiceName = "service_name"
 )

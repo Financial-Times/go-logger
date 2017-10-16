@@ -2,7 +2,6 @@ package logger
 
 import (
 	"github.com/sirupsen/logrus"
-	"strconv"
 	"time"
 )
 
@@ -23,7 +22,7 @@ func (entry *logEntry) WithUUID(uuid string) LogEntry {
 }
 
 func (entry *logEntry) WithValidFlag(isValid bool) LogEntry {
-	return &logEntry{entry.WithField("isValid", strconv.FormatBool(isValid))}
+	return &logEntry{entry.WithField("isValid", isValid)}
 }
 
 func (entry *logEntry) WithTime(time time.Time) LogEntry {
