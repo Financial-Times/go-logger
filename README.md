@@ -23,7 +23,7 @@ Beside the With... fields offered by the original Logrus Entry, the following me
 - `WithTransactionID`, to add a transaction ID to the log entry;
 - `WithUUID`, to add a UUID to the log entry;
 - `WithTime`, to set a custom time of the logging entry (this can be used to influence Splunk log time); 
-- `WithValidFlag` to mark if a message processed by an application succeeded or not. 
+- `WithValidFlag` to mark if a message received by an application is valid or not. 
 Invalid messages will be ignored by some of the monitoring statistics (SLAs).
 
 ### Actual Logging
@@ -48,4 +48,26 @@ logger.WithMonitoringEvent("Map", tid, "Annotations")
       .WithValidFlag(true)
       .WithError(err)
       .Error("Error decoding body")
+```
+
+### Test Package
+
+The `test` package has been introduced to check through unit tests that the application is logging relevant events 
+properly. The example below shows how to check that an application is logging a specific monitoring event:
+```
+import (
+    ...
+    "github.com/Financial-Times/go-logger/test"
+    ...
+)
+
+func TestSomething(t *testing.T) {
+    hook := logTest.NewTestHook("serviceName")
+    ...
+    Something()
+    ...
+    entry := hook.LastEntry()
+    test.Assert(t, entry).HasMonitoringEvent("Map", "tid_test", "annotations").HasValidFlag(true)
+}
+
 ```
