@@ -9,16 +9,22 @@ When working with this logger library, please make sure you use one of the init 
 Note: You can still create your own standard logger by using the `NewLogger` function (check [Logrus](https://github.com/sirupsen/logrus/blob/master/logger.go#L69) for more details).
 
 
-### Creating an Entry
-The library maintains most of the Logrus's way of logging, but it adds some default fields (`@time`, `transaction_id` and `service_name`) for the created logging entries.
-For entry creation you can use the following methods:
-- `NewEntry` - with `transaction_id` as a parameter
-- `NewMonitoringEntry` - with `transaction_id`, `eventName` and `contentType` as parameters. Beside these, a `monitoring_event=true` field will also be added to the entry. This message will be picked up by the monitoring services and dashboards.
+### Logging a Monitoring Event
+The library is Logrus compatible, but it includes a few default fields, 
+which help facilitate the monitoring of key application events (`@time`, `transaction_id` and `service_name`).
+You can add a monitoring event to a log entry by using the following method:
+- `WithMonitoringEvent` - with `transaction_id`, `eventName` and `contentType` as parameters. 
+A `monitoring_event=true` field will also be added to the entry. 
+This message will be picked up by the monitoring services and dashboards.
 
 ### Adding additional fields to the Entry
 
-Beside the With... fields offered by the original Logrus Entry, the `WithUUID`, `WithTime` and `WithValidFlag` methods can also be used.
-The validation flag should mark whether the message is accepted as valid by the service it uses. Invalid messages will be ignored by some of the monitoring statistics (SLAs).
+Beside the With... fields offered by the original Logrus Entry, the following methods can be used:
+- `WithTransactionID`, to add a transaction ID to the log entry;
+- `WithUUID`, to add a UUID to the log entry;
+- `WithTime`, to set a custom time of the logging entry (this can be used to influence Splunk log time); 
+- `WithValidFlag` to mark if a message received by an application is valid or not. 
+Invalid messages will be ignored by some of the monitoring statistics (SLAs).
 
 ### Actual Logging
 
@@ -29,7 +35,7 @@ Use Logrus' default log methods, like Info, Warn, Error and others.
 A monitoring log for a successful publish, with validation flag, can look like this:
 
 ```
-logger.NewMonitoringEntry("Map", tid, "Annotations")
+logger.WithMonitoringEvent("Map", tid, "Annotations")
       .WithUUID(uuid)
       .WithValidFlag(true)
       .Info("Successfully mapped")
@@ -37,9 +43,31 @@ logger.NewMonitoringEntry("Map", tid, "Annotations")
 
 A monitoring log for a failed publish would log it as an error:
 ```
-logger.NewMonitoringEntry("Map", tid, "Annotations")
+logger.WithMonitoringEvent("Map", tid, "Annotations")
       .WithUUID(uuid)
       .WithValidFlag(true)
       .WithError(err)
       .Error("Error decoding body")
+```
+
+### Test Package
+
+The `test` package has been introduced to check through unit tests that the application is logging relevant events 
+properly. The example below shows how to check that an application is logging a specific monitoring event:
+```
+import (
+    ...
+    "github.com/Financial-Times/go-logger/test"
+    ...
+)
+
+func TestSomething(t *testing.T) {
+    hook := logTest.NewTestHook("serviceName")
+    ...
+    Something()
+    ...
+    entry := hook.LastEntry()
+    test.Assert(t, entry).HasMonitoringEvent("Map", "tid_test", "annotations").HasValidFlag(true)
+}
+
 ```
