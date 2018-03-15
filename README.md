@@ -57,7 +57,7 @@ properly. The example below shows how to check that an application is logging a 
 ```
 import (
     ...
-    "github.com/Financial-Times/go-logger/test"
+    logTest "github.com/Financial-Times/go-logger/test"
     ...
 )
 
