@@ -6,6 +6,7 @@ import (
 	"math/rand"
 	"testing"
 	"time"
+	"github.com/stretchr/testify/require"
 )
 
 func TestAssertHasField(t *testing.T) {
@@ -191,4 +192,16 @@ func TestAssertHasValidFlagFalseFailed(t *testing.T) {
 	e := hook.LastEntry()
 	Assert(mockT, e).HasValidFlag(true)
 	assert.True(t, mockT.Failed())
+}
+
+func TestNoDataRace(t *testing.T) {
+	hook := NewTestHook("test_service")
+	log := logger.Logger()
+	go func() {
+		log.Info("Something info")
+	}()
+	time.Sleep(100 * time.Millisecond)
+
+	require.NotNil(t, hook.LastEntry())
+	assert.Equal(t, "info", hook.LastEntry().Level.String())
 }
