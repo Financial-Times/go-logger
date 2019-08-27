@@ -1,7 +1,7 @@
 package test
 
 import (
-	"github.com/Financial-Times/go-logger"
+	"github.com/Financial-Times/go-logger/v2"
 	"github.com/stretchr/testify/assert"
 	"math/rand"
 	"testing"

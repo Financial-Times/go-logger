@@ -71,3 +71,11 @@ func TestSomething(t *testing.T) {
 }
 
 ```
+
+### Installation
+
+```
+    GO111MODULE=on go get github.com/Financial-Times/go-logger@v2
+    cd $GOPATH/src/github.com/Financial-Times/go-logger/
+    GO111MODULE=on go build -mod=readonly
+```
