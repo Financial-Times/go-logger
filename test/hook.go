@@ -6,6 +6,6 @@ import (
 )
 
 func NewTestHook(serviceName string) *test.Hook {
-	logger.InitDefaultLogger(serviceName)
-	return test.NewLocal(logger.Logger())
+	ulog := logger.NewUPPInfoLogger(serviceName)
+	return test.NewLocal(ulog.Logger)
 }
