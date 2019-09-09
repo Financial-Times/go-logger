@@ -21,8 +21,7 @@ const (
 )
 
 func TestFtJSONFormatter(t *testing.T) {
-	f := newFTJSONFormatter()
-	f.serviceName = testServiceName
+	f := newFTJSONFormatter(testServiceName)
 	ulog := NewUnstructuredLogger()
 	e := ulog.WithMonitoringEvent(testEvent, testTID, testContentType).WithError(errors.New(testErrMsg))
 	e.Time = time.Now()
@@ -53,8 +52,7 @@ func TestFtJSONFormatter(t *testing.T) {
 
 func TestFtJSONFormatterWithLogTimeField(t *testing.T) {
 	myExpectedTime := time.Unix(rand.Int63n(time.Now().Unix()), rand.Int63n(1000000000))
-	f := newFTJSONFormatter()
-	f.serviceName = testServiceName
+	f := newFTJSONFormatter(testServiceName)
 	ulog := NewUnstructuredLogger()
 	e := ulog.WithMonitoringEvent(testEvent, testTID, testContentType).WithTime(myExpectedTime).
 		WithError(errors.New(testErrMsg))
@@ -85,7 +83,7 @@ func TestFtJSONFormatterWithLogTimeField(t *testing.T) {
 }
 
 func TestLoggerWithoutInitialisation(t *testing.T) {
-	f := newFTJSONFormatter()
+	f := newFTJSONFormatter("")
 	ulog := NewUnstructuredLogger()
 	e := ulog.WithMonitoringEvent(testEvent, testTID, testContentType).WithError(errors.New(testErrMsg))
 	e.Time = time.Now()

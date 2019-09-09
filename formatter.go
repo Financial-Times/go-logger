@@ -23,8 +23,8 @@ type ftJSONFormatter struct {
 	serviceName string
 }
 
-func newFTJSONFormatter() *ftJSONFormatter {
-	return &ftJSONFormatter{}
+func newFTJSONFormatter(serviceName string) *ftJSONFormatter {
+	return &ftJSONFormatter{serviceName: serviceName}
 }
 
 func (f *ftJSONFormatter) Format(entry *logrus.Entry) ([]byte, error) {

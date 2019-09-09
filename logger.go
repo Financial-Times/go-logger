@@ -21,8 +21,7 @@ func NewUnstructuredLogger() *UPPLogger {
 // NewUPPLogger initializes UPP logger with structured logging format.
 func NewUPPLogger(serviceName string, logLevel string) *UPPLogger {
 	logrusLog := logrus.New()
-	formatter := newFTJSONFormatter()
-	formatter.serviceName = serviceName
+	formatter := newFTJSONFormatter(serviceName)
 	logrusLog.Formatter = formatter
 
 	parsedLogLevel, err := logrus.ParseLevel(logLevel)
