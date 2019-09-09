@@ -1,17 +1,18 @@
 package logger
 
 import (
+	"testing"
+
 	"github.com/sirupsen/logrus"
 	"github.com/sirupsen/logrus/hooks/test"
 	"github.com/stretchr/testify/assert"
-	"testing"
 )
 
 func TestWithMonitoringEvent(t *testing.T) {
-	InitDefaultLogger("test_service")
-	hook := test.NewLocal(Logger())
+	ulog := NewUPPInfoLogger("test_service")
+	hook := test.NewLocal(ulog.Logger)
 
-	WithMonitoringEvent("an-event", "tid_test", "some-content").Info("a info message")
+	ulog.WithMonitoringEvent("an-event", "tid_test", "some-content").Info("a info message")
 
 	assert.Len(t, hook.Entries, 1)
 	assert.Len(t, hook.LastEntry().Data, 4)
@@ -21,10 +22,10 @@ func TestWithMonitoringEvent(t *testing.T) {
 }
 
 func TestWithTransactionID(t *testing.T) {
-	InitDefaultLogger("test_service")
-	hook := test.NewLocal(Logger())
+	ulog := NewUPPInfoLogger("test_service")
+	hook := test.NewLocal(ulog.Logger)
 
-	WithTransactionID("tid_test").Info("a info message")
+	ulog.WithTransactionID("tid_test").Info("a info message")
 
 	assert.Len(t, hook.Entries, 1)
 	assert.Len(t, hook.LastEntry().Data, 1)

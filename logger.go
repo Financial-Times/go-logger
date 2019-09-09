@@ -9,7 +9,7 @@ const (
 )
 
 // UPPLogger wraps logrus logger providing the same functionality as logrus with a few UPP specifics
-type UPPLogger struct{
+type UPPLogger struct {
 	*logrus.Logger
 }
 
@@ -19,10 +19,11 @@ func NewUnstructuredLogger() *UPPLogger {
 }
 
 // NewUPPLogger initializes UPP logger with structured logging format
-func NewUPPLogger(serviceName string, logLevel string) *UPPLogger{
+func NewUPPLogger(serviceName string, logLevel string) *UPPLogger {
 	logrusLog := logrus.New()
 	formatter := newFTJSONFormatter()
 	formatter.serviceName = serviceName
+	logrusLog.Formatter = formatter
 
 	parsedLogLevel, err := logrus.ParseLevel(logLevel)
 	if err != nil {
@@ -30,11 +31,12 @@ func NewUPPLogger(serviceName string, logLevel string) *UPPLogger{
 		parsedLogLevel = logrus.InfoLevel
 	}
 	logrusLog.SetLevel(parsedLogLevel)
+
 	return &UPPLogger{logrusLog}
 }
 
 // NewUPPInfoLogger initializes UPPLogger with log level INFO
-func NewUPPInfoLogger(serviceName string) *UPPLogger{
+func NewUPPInfoLogger(serviceName string) *UPPLogger {
 	return NewUPPLogger(serviceName, logrus.InfoLevel.String())
 }
 

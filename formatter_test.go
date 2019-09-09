@@ -3,11 +3,12 @@ package logger
 import (
 	"encoding/json"
 	"errors"
-	"github.com/sirupsen/logrus"
-	"github.com/stretchr/testify/assert"
 	"math/rand"
 	"testing"
 	"time"
+
+	"github.com/sirupsen/logrus"
+	"github.com/stretchr/testify/assert"
 )
 
 const (
@@ -22,7 +23,8 @@ const (
 func TestFtJSONFormatter(t *testing.T) {
 	f := newFTJSONFormatter()
 	f.serviceName = testServiceName
-	e := WithMonitoringEvent(testEvent, testTID, testContentType).WithError(errors.New(testErrMsg))
+	ulog := NewUnstructuredLogger()
+	e := ulog.WithMonitoringEvent(testEvent, testTID, testContentType).WithError(errors.New(testErrMsg))
 	e.Time = time.Now()
 	e.Message = testMsg
 	e.Level = logrus.InfoLevel
@@ -53,7 +55,8 @@ func TestFtJSONFormatterWithLogTimeField(t *testing.T) {
 	myExpectedTime := time.Unix(rand.Int63n(time.Now().Unix()), rand.Int63n(1000000000))
 	f := newFTJSONFormatter()
 	f.serviceName = testServiceName
-	e := WithMonitoringEvent(testEvent, testTID, testContentType).WithTime(myExpectedTime).
+	ulog := NewUnstructuredLogger()
+	e := ulog.WithMonitoringEvent(testEvent, testTID, testContentType).WithTime(myExpectedTime).
 		WithError(errors.New(testErrMsg))
 	e.Time = time.Now()
 	e.Message = testMsg
@@ -68,6 +71,7 @@ func TestFtJSONFormatterWithLogTimeField(t *testing.T) {
 	assert.Len(t, logLine, 9)
 
 	myActualTime, err := time.Parse(timestampFormat, logLine[fieldKeyTime])
+	assert.NoError(t, err)
 	assert.WithinDuration(t, myExpectedTime, myActualTime, 0)
 
 	assert.Equal(t, testServiceName, logLine[fieldKeyServiceName])
@@ -82,7 +86,8 @@ func TestFtJSONFormatterWithLogTimeField(t *testing.T) {
 
 func TestLoggerWithoutInitialisation(t *testing.T) {
 	f := newFTJSONFormatter()
-	e := WithMonitoringEvent(testEvent, testTID, testContentType).WithError(errors.New(testErrMsg))
+	ulog := NewUnstructuredLogger()
+	e := ulog.WithMonitoringEvent(testEvent, testTID, testContentType).WithError(errors.New(testErrMsg))
 	e.Time = time.Now()
 	e.Message = testMsg
 	e.Level = logrus.ErrorLevel
