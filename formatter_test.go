@@ -95,5 +95,5 @@ func TestLoggerWithoutInitialisation(t *testing.T) {
 	logLineBytes, err := f.Format(e)
 
 	assert.Empty(t, logLineBytes)
-	assert.EqualError(t, err, "logger is not initialised - please use InitLogger or InitDefaultLogger function")
+	assert.EqualError(t, err, "UPP log formatter is not initialised with service name")
 }

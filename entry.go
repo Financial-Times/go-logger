@@ -1,11 +1,13 @@
 package logger
 
 import (
-	"github.com/sirupsen/logrus"
 	"strconv"
 	"time"
+
+	"github.com/sirupsen/logrus"
 )
 
+// logEntry is wrapper around logrus.Entry adding a few methods adding UPP specific keys to the log entries.
 type logEntry struct {
 	*logrus.Entry
 }

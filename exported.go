@@ -28,10 +28,13 @@ func (ulog *UPPLogger) WithFields(fields map[string]interface{}) LogEntry {
 	return &logEntry{ulog.Logger.WithFields(fields)}
 }
 
+// WithTransactionID creates an entry from the standard logger and adds transaction_id field to it.
 func (ulog *UPPLogger) WithTransactionID(tid string) LogEntry {
 	return &logEntry{ulog.Logger.WithField("transaction_id", tid)}
 }
 
+// WithMonitoringEvent creates an entry from the standard logger and adds monitoring event fields to it.
+// The monitoring event fields are "monitoring_event", "event" and "content_type".
 func (ulog *UPPLogger) WithMonitoringEvent(eventName, tid, contentType string) LogEntry {
 	e := &logEntry{
 		ulog.WithField("monitoring_event", "true").

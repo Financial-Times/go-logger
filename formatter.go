@@ -4,8 +4,9 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/sirupsen/logrus"
 	"time"
+
+	"github.com/sirupsen/logrus"
 )
 
 const (
@@ -15,6 +16,9 @@ const (
 	fieldKeyServiceName = "service_name"
 )
 
+// ftJSONFormatter formats the logs in JSON format.
+// It always includes "msg", "level" and "service_name" fields for each log entry.
+// If there is time field("@time") in the log entry, ftJSONFormatter logs it in time.RFC3339Nano format.
 type ftJSONFormatter struct {
 	serviceName string
 }
@@ -25,7 +29,7 @@ func newFTJSONFormatter() *ftJSONFormatter {
 
 func (f *ftJSONFormatter) Format(entry *logrus.Entry) ([]byte, error) {
 	if f.serviceName == "" {
-		return []byte{}, errors.New("logger is not initialised - please use InitLogger or InitDefaultLogger function")
+		return []byte{}, errors.New("UPP log formatter is not initialised with service name")
 	}
 
 	data := make(logrus.Fields)
@@ -49,7 +53,7 @@ func (f *ftJSONFormatter) Format(entry *logrus.Entry) ([]byte, error) {
 
 	serialized, err := json.Marshal(data)
 	if err != nil {
-		return nil, fmt.Errorf("Failed to marshal fields to JSON, %v", err)
+		return nil, fmt.Errorf("failed to marshal fields to JSON, %v", err)
 	}
 	return append(serialized, '\n'), nil
 }

@@ -1,13 +1,15 @@
 package test
 
 import (
-	"github.com/sirupsen/logrus"
-	"github.com/stretchr/testify/assert"
 	"strconv"
 	"testing"
 	"time"
+
+	"github.com/sirupsen/logrus"
+	"github.com/stretchr/testify/assert"
 )
 
+// LoggingAssert struct exposes convenient assert methods for UPP logger specific log entries.
 type LoggingAssert struct {
 	t     *testing.T
 	entry *logrus.Entry
