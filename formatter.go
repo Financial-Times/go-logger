@@ -9,22 +9,18 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-const (
-	timestampFormat = time.RFC3339Nano
-
-	fieldKeyTime        = "@time"
-	fieldKeyServiceName = "service_name"
-)
+const timestampFormat = time.RFC3339Nano
 
 // ftJSONFormatter formats the logs in JSON format.
 // It always includes "msg", "level" and "service_name" fields for each log entry.
-// If there is time field("@time") in the log entry, ftJSONFormatter logs it in time.RFC3339Nano format.
+// If there is time field in the log entry, ftJSONFormatter logs it in time.RFC3339Nano format.
 type ftJSONFormatter struct {
 	serviceName string
+	keyConf     *KeyNamesConfig
 }
 
-func newFTJSONFormatter(serviceName string) *ftJSONFormatter {
-	return &ftJSONFormatter{serviceName: serviceName}
+func newFTJSONFormatter(serviceName string, keyConf *KeyNamesConfig) *ftJSONFormatter {
+	return &ftJSONFormatter{serviceName: serviceName, keyConf: keyConf}
 }
 
 func (f *ftJSONFormatter) Format(entry *logrus.Entry) ([]byte, error) {
@@ -43,13 +39,13 @@ func (f *ftJSONFormatter) Format(entry *logrus.Entry) ([]byte, error) {
 		}
 	}
 
-	if _, found := data[fieldKeyTime]; !found {
-		data[fieldKeyTime] = entry.Time.Format(timestampFormat)
+	if _, found := data[f.keyConf.KeyTime]; !found {
+		data[f.keyConf.KeyTime] = entry.Time.Format(timestampFormat)
 	}
 
-	data[logrus.FieldKeyMsg] = entry.Message
-	data[logrus.FieldKeyLevel] = entry.Level.String()
-	data[fieldKeyServiceName] = f.serviceName
+	data[f.keyConf.KeyMsg] = entry.Message
+	data[f.keyConf.KeyLogLevel] = entry.Level.String()
+	data[f.keyConf.KeyServiceName] = f.serviceName
 
 	serialized, err := json.Marshal(data)
 	if err != nil {
