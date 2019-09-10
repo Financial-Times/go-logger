@@ -43,3 +43,14 @@ func (ulog *UPPLogger) WithMonitoringEvent(eventName, tid, contentType string) L
 	}
 	return e.WithTransactionID(tid)
 }
+
+// WithMonitoringEvent creates an entry from the standard logger and adds categorised event fields to it.
+// The added fields are "monitoring_event", "event" and "content_type".
+func (ulog *UPPLogger) WithCategorisedEvent(eventName, eventCategory, eventMsg, tid string) LogEntry {
+	e := &logEntry{
+		ulog.WithField("event", eventName).
+			WithField("event_category", eventCategory).
+			WithField("event_msg", eventMsg),
+	}
+	return e.WithTransactionID(tid)
+}
