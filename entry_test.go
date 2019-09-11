@@ -11,6 +11,9 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+// The set of these unit tests aim to test the common methods (for both the logger and the entry) but called
+// on the entry object. That's why we are looking at the second calls in one call chain.
+
 func TestLogEntryWithTime(t *testing.T) {
 	ulog := NewUPPInfoLogger("test_service")
 	hook := test.NewLocal(ulog.Logger)
@@ -65,7 +68,8 @@ func TestLogEntryWithValidFlagFalse(t *testing.T) {
 	ulog := NewUPPInfoLogger("test_service")
 	hook := test.NewLocal(ulog.Logger)
 
-	ulog.WithMonitoringEvent("an-event", "tid_test", "some-content").WithValidFlag(false).Info("a info message")
+	ulog.WithMonitoringEvent("an-event", "tid_test", "some-content").
+		WithValidFlag(false).Info("a info message")
 
 	assert.Len(t, hook.Entries, 1)
 	assert.Len(t, hook.LastEntry().Data, 5)
@@ -75,4 +79,40 @@ func TestLogEntryWithValidFlagFalse(t *testing.T) {
 	assert.NoError(t, err)
 	assert.False(t, isValid)
 	assert.Equal(t, "tid_test", hook.LastEntry().Data[DefaultKeyTransactionID])
+}
+
+func TestLogEntryWithMonitoringEvent(t *testing.T) {
+	conf := KeyNamesConfig{KeyEventName: "test-event-name"}
+	ulog := NewUPPInfoLogger("test_service", conf)
+	hook := test.NewLocal(ulog.Logger)
+
+	ulog.WithUUID("test-uuid-value").
+		WithMonitoringEvent("an-event", "tid_test", "some-content").
+		Info("a info message")
+
+	assert.Len(t, hook.Entries, 1)
+	assert.Len(t, hook.LastEntry().Data, 5)
+	assert.Equal(t, logrus.InfoLevel, hook.LastEntry().Level)
+	assert.Equal(t, "an-event", hook.LastEntry().Data[conf.KeyEventName])
+	assert.Equal(t, "true", hook.LastEntry().Data[DefaultKeyMonitoringEvent])
+	assert.Equal(t, "some-content", hook.LastEntry().Data[DefaultKeyContentType])
+	assert.Equal(t, "tid_test", hook.LastEntry().Data[DefaultKeyTransactionID])
+}
+
+func TestLogEntryWithCategorisedEvent(t *testing.T) {
+	conf := KeyNamesConfig{KeyEventCategory: "test-event-category-key"}
+	ulog := NewUPPInfoLogger("test_service", conf)
+	hook := test.NewLocal(ulog.Logger)
+
+	ulog.WithUUID("test-uuid-value").
+		WithCategorisedEvent("test-event", "test-category", "test-event-msg", "test-tid").
+		Info("a info message")
+
+	assert.Len(t, hook.Entries, 1)
+	assert.Len(t, hook.LastEntry().Data, 5)
+	assert.Equal(t, logrus.InfoLevel, hook.LastEntry().Level)
+	assert.Equal(t, "test-event", hook.LastEntry().Data[DefaultKeyEventName])
+	assert.Equal(t, "test-category", hook.LastEntry().Data[conf.KeyEventCategory])
+	assert.Equal(t, "test-event-msg", hook.LastEntry().Data[DefaultKeyEventMsg])
+	assert.Equal(t, "test-tid", hook.LastEntry().Data[DefaultKeyTransactionID])
 }

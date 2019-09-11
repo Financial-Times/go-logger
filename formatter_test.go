@@ -28,7 +28,7 @@ func TestFtJSONFormatter(t *testing.T) {
 	e.Message = testMsg
 	e.Level = logrus.InfoLevel
 
-	logLineBytes, err := f.Format(e)
+	logLineBytes, err := f.Format(e.Entry)
 	assert.NoError(t, err)
 
 	var logLine map[string]string
@@ -52,9 +52,9 @@ func TestFtJSONFormatter(t *testing.T) {
 
 func TestFtJSONFormatterWithConf(t *testing.T) {
 	conf := KeyNamesConfig{
-		KeyLogLevel: "test-log-level-key",
-		KeyMsg:      "test-msg-key",
-		//KeyError:           "test-err-key",
+		KeyLogLevel:        "test-log-level-key",
+		KeyMsg:             "test-msg-key",
+		KeyError:           "test-err-key",
 		KeyTime:            "test-time-key",
 		KeyServiceName:     "test-service-name",
 		KeyTransactionID:   "test-trans-id",
@@ -69,7 +69,7 @@ func TestFtJSONFormatterWithConf(t *testing.T) {
 	e.Message = testMsg
 	e.Level = logrus.InfoLevel
 
-	logLineBytes, err := f.Format(e)
+	logLineBytes, err := f.Format(e.Entry)
 	assert.NoError(t, err)
 
 	var logLine map[string]string
@@ -85,7 +85,7 @@ func TestFtJSONFormatterWithConf(t *testing.T) {
 	assert.Equal(t, testEvent, logLine[conf.KeyEventName])
 	assert.Equal(t, testTID, logLine[conf.KeyTransactionID])
 	assert.Equal(t, testContentType, logLine[conf.KeyContentType])
-	assert.Equal(t, testErrMsg, logLine["error"])
+	assert.Equal(t, testErrMsg, logLine[conf.KeyError])
 	assert.Equal(t, testMsg, logLine[conf.KeyMsg])
 	assert.Equal(t, logrus.InfoLevel.String(), logLine[conf.KeyLogLevel])
 	assert.Equal(t, "true", logLine[conf.KeyMonitoringEvent])
@@ -101,7 +101,7 @@ func TestFtJSONFormatterWithLogTimeField(t *testing.T) {
 	e.Message = testMsg
 	e.Level = logrus.InfoLevel
 
-	logLineBytes, err := f.Format(e)
+	logLineBytes, err := f.Format(e.Entry)
 	assert.NoError(t, err)
 
 	var logLine map[string]string
@@ -131,7 +131,7 @@ func TestLoggerWithoutInitialisation(t *testing.T) {
 	e.Message = testMsg
 	e.Level = logrus.ErrorLevel
 
-	logLineBytes, err := f.Format(e)
+	logLineBytes, err := f.Format(e.Entry)
 
 	assert.Empty(t, logLineBytes)
 	assert.EqualError(t, err, "UPP log formatter is not initialised with service name")
@@ -146,7 +146,7 @@ func TestFtJSONFormatterWithStructuredEvent(t *testing.T) {
 	e.Message = testMsg
 	e.Level = logrus.InfoLevel
 
-	logLineBytes, err := f.Format(e)
+	logLineBytes, err := f.Format(e.Entry)
 	assert.NoError(t, err)
 
 	var logLine map[string]string
