@@ -2,11 +2,57 @@ package logger
 
 import (
 	"testing"
+	"time"
 
 	"github.com/sirupsen/logrus"
 	"github.com/sirupsen/logrus/hooks/test"
 	"github.com/stretchr/testify/assert"
 )
+
+// The set of these unit tests aim to test the common methods (for both the logger and the entry) but called
+// on the logger object. That's why we are looking at the first calls in one call chain.
+
+func TestUPPLoggerWithUUID(t *testing.T) {
+	ulog := NewUPPInfoLogger("test_service")
+	hook := test.NewLocal(ulog.Logger)
+
+	ulog.WithUUID("test-uuid").Info("test info message")
+
+	assert.Len(t, hook.Entries, 1)
+	assert.Len(t, hook.LastEntry().Data, 1)
+	assert.Equal(t, logrus.InfoLevel, hook.LastEntry().Level)
+	assert.Equal(t, "test info message", hook.LastEntry().Message)
+	assert.Equal(t, "test-uuid", hook.LastEntry().Data[DefaultKeyUUID])
+}
+
+func TestUPPLoggerWithIsValid(t *testing.T) {
+	conf := KeyNamesConfig{KeyIsValid: "test-is-valid-key"}
+	ulog := NewUPPInfoLogger("test_service", conf)
+	hook := test.NewLocal(ulog.Logger)
+
+	ulog.WithValidFlag(true).Info("test info message")
+
+	assert.Len(t, hook.Entries, 1)
+	assert.Len(t, hook.LastEntry().Data, 1)
+	assert.Equal(t, logrus.InfoLevel, hook.LastEntry().Level)
+	assert.Equal(t, "test info message", hook.LastEntry().Message)
+	assert.Equal(t, "true", hook.LastEntry().Data[conf.KeyIsValid])
+}
+
+func TestUPPLoggerWithTime(t *testing.T) {
+	conf := KeyNamesConfig{KeyTime: "test-time-key"}
+	ulog := NewUPPInfoLogger("test_service", conf)
+	hook := test.NewLocal(ulog.Logger)
+
+	myTime := time.Now()
+	ulog.WithTime(myTime).Info("test info message")
+
+	assert.Len(t, hook.Entries, 1)
+	assert.Len(t, hook.LastEntry().Data, 1)
+	assert.Equal(t, logrus.InfoLevel, hook.LastEntry().Level)
+	assert.Equal(t, "test info message", hook.LastEntry().Message)
+	assert.Equal(t, myTime.Format(timestampFormat), hook.LastEntry().Data[conf.KeyTime])
+}
 
 func TestWithMonitoringEvent(t *testing.T) {
 	ulog := NewUPPInfoLogger("test_service")
