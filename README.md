@@ -1,34 +1,52 @@
 # go-logger
-Logging library in GO, used for structural logging inside UPP (mostly required for monitoring publish events). It is based on the [Logrus](https://github.com/sirupsen/logrus) implementation.
+
+Logging library in Go, used for structural logging inside UPP. It is wrapper of [logrus](https://github.com/sirupsen/logrus) library for structrural logging in Go.
+As wrapper of logrus logger, the UPP logger provides the same functionality and extends it with a few UPP specific methods. It also enforces the aggreed logging format in UPP -
+JSON formatted logs and each of the log entries include the service name, log level and time if available.
+
+As logrus logger implements the standard Go log interface, the UPP logger implements it as well.
+So the UPP logger can be used where standard Go log is required. 
+
+UPP logger shares the same log levels as logrus - debug, info, warning, error, fatal, panic.
 
 ### Initialization
-When working with this logger library, please make sure you use one of the init methods first (otherwise the logging will fail):
-- `InitLogger` - requires a serviceName and a logLevel
-- `InitDefaultLogger` - requires only the serviceName as a parameter
+When working with this logger library, please use one of the init methods:
+- `NewUPPLogger` - requires a serviceName and a logLevel as parameters. Also there is additional optional parameter - 
+configuration for the names of the field keys logged by the UPP logger methods. 
+- `NewUPPInfoLogger` - requires only the serviceName as a parameter. Initializes logger with log level info. 
+Also there is additional optional parameter - 
+configuration for the names of the field keys logged by the UPP logger methods. 
+- `NewUnstructuredLogger` - returns UPP logger but without enforced structural logging format.
 
-Note: You can still create your own standard logger by using the `NewLogger` function (check [Logrus](https://github.com/sirupsen/logrus/blob/master/logger.go#L69) for more details).
+Please note that using package level logger by only importing the library (supported in v1 of this library) is no longer available.
 
+### Logging with the UPP logger
+UPP logger supports structural logging as logrus supports it. Please take a look at [logging fields](https://github.com/sirupsen/logrus#fields)
+as logrus method for structural logging. UPP logrus also implements `WithField` and `WithFields` methods.
+As logrus UPPLogger also supports chaining of the methods that add logging fields.
 
-### Logging a Monitoring Event
-The library is Logrus compatible, but it includes a few default fields, 
-which help facilitate the monitoring of key application events (`@time`, `transaction_id` and `service_name`).
-You can add a monitoring event to a log entry by using the following method:
-- `WithMonitoringEvent` - with `transaction_id`, `eventName` and `contentType` as parameters. 
-A `monitoring_event=true` field will also be added to the entry. 
-This message will be picked up by the monitoring services and dashboards.
+For producing actual log, use the default log methods, like Info, Warn, Error and others.
 
-### Adding additional fields to the Entry
+### Adding additional methods to the Entry and logger
 
-Beside the With... fields offered by the original Logrus Entry, the following methods can be used:
+Beside the With... fields offered by the original logrus Entry and logger, the following methods can be used:
 - `WithTransactionID`, to add a transaction ID to the log entry;
 - `WithUUID`, to add a UUID to the log entry;
 - `WithTime`, to set a custom time of the logging entry (this can be used to influence Splunk log time); 
 - `WithValidFlag` to mark if a message received by an application is valid or not. 
 Invalid messages will be ignored by some of the monitoring statistics (SLAs).
 
-### Actual Logging
 
-Use Logrus' default log methods, like Info, Warn, Error and others.
+### Logging events
+The library includes methods which help facilitate the monitoring of key application events.
+
+- You can add a monitoring event to a log entry by using the following method:
+`WithMonitoringEvent` - with transaction ID, event name and content type as parameters. 
+A `monitoring_event=true` field will also be added to the entry. 
+This message will be picked up by the monitoring services and dashboards.
+- You can add an event with category and message by using: `WithCategorisedEvent` - with event name,
+event category and event message as parameters. Using this method we are also able to produce log
+with particular structure easy to be picked up and parsed by a monitoring tool.
 
 ### Examples
 
