@@ -51,7 +51,7 @@ func (a *LoggingAssert) HasUUID(expectedUUID string) *LoggingAssert {
 }
 
 func (a *LoggingAssert) HasTime(expectedTime time.Time) *LoggingAssert {
-	return a.HasField("@time", expectedTime.Format(time.RFC3339Nano))
+	return a.HasField("time", expectedTime.Format(time.RFC3339Nano))
 }
 
 func (a *LoggingAssert) HasError(expectedErr error) *LoggingAssert {

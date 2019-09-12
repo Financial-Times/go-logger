@@ -6,7 +6,7 @@ const (
 	DefaultKeyLogLevel = logrus.FieldKeyLevel
 	DefaultKeyMsg      = logrus.FieldKeyMsg
 	DefaultKeyError    = "error"
-	DefaultKeyTime     = "@time"
+	DefaultKeyTime     = "time"
 
 	DefaultKeyServiceName   = "service_name"
 	DefaultKeyTransactionID = "transaction_id"
