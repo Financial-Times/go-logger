@@ -1,13 +1,15 @@
 package test
 
 import (
-	"github.com/sirupsen/logrus"
-	"github.com/stretchr/testify/assert"
 	"strconv"
 	"testing"
 	"time"
+
+	"github.com/sirupsen/logrus"
+	"github.com/stretchr/testify/assert"
 )
 
+// LoggingAssert struct exposes convenient assert methods for UPP logger specific log entries.
 type LoggingAssert struct {
 	t     *testing.T
 	entry *logrus.Entry
@@ -49,7 +51,7 @@ func (a *LoggingAssert) HasUUID(expectedUUID string) *LoggingAssert {
 }
 
 func (a *LoggingAssert) HasTime(expectedTime time.Time) *LoggingAssert {
-	return a.HasField("@time", expectedTime.Format(time.RFC3339Nano))
+	return a.HasField("time", expectedTime.Format(time.RFC3339Nano))
 }
 
 func (a *LoggingAssert) HasError(expectedErr error) *LoggingAssert {

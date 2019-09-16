@@ -1,19 +1,17 @@
 package logger
 
-import "github.com/sirupsen/logrus"
-
-// WithError creates an entry from the standard logger and adds an error to it, using the value defined in ErrorKey as key.
-func WithError(err error) LogEntry {
-	return &logEntry{log.WithField(logrus.ErrorKey, err)}
-}
+import (
+	"strconv"
+	"time"
+)
 
 // WithField creates an entry from the standard logger and adds a field to
 // it. If you want multiple fields, use `WithFields`.
 //
 // Note that it doesn't log until you call Debug, Print, Info, Warn, Fatal
 // or Panic on the Entry it returns.
-func WithField(key string, value interface{}) LogEntry {
-	return &logEntry{log.WithField(key, value)}
+func (ulog *UPPLogger) WithField(key string, value interface{}) *LogEntry {
+	return &LogEntry{ulog, ulog.Logger.WithField(key, value)}
 }
 
 // WithFields creates an entry from the standard logger and adds multiple
@@ -22,139 +20,55 @@ func WithField(key string, value interface{}) LogEntry {
 //
 // Note that it doesn't log until you call Debug, Print, Info, Warn, Fatal
 // or Panic on the Entry it returns.
-func WithFields(fields map[string]interface{}) LogEntry {
-	return &logEntry{log.WithFields(fields)}
+func (ulog *UPPLogger) WithFields(fields map[string]interface{}) *LogEntry {
+	return &LogEntry{ulog, ulog.Logger.WithFields(fields)}
 }
 
-func WithTransactionID(tid string) LogEntry {
-	return &logEntry{log.WithField("transaction_id", tid)}
+// WithTransactionID creates an entry from the standard logger and adds transaction_id field to it.
+func (ulog *UPPLogger) WithTransactionID(tid string) *LogEntry {
+	return ulog.WithField(ulog.keyConf.KeyTransactionID, tid)
 }
 
-func WithMonitoringEvent(eventName, tid, contentType string) LogEntry {
-	e := &logEntry{
-		log.WithField("monitoring_event", "true").
-			WithField("event", eventName).
-			WithField("content_type", contentType),
-	}
+// WithError creates an entry from the standard logger and adds an error field to it.
+func (ulog *UPPLogger) WithError(err error) *LogEntry {
+	return ulog.WithField(ulog.keyConf.KeyError, err)
+}
+
+// WithUUID creates an entry from the standard logger and adds an uuid field to it.
+func (ulog *UPPLogger) WithUUID(uuid string) *LogEntry {
+	return ulog.WithField(ulog.keyConf.KeyUUID, uuid)
+}
+
+// WithValidFlag creates an entry from the standard logger and adds an "is valid" field to it.
+func (ulog *UPPLogger) WithValidFlag(isValid bool) *LogEntry {
+	return ulog.WithField(ulog.keyConf.KeyIsValid, strconv.FormatBool(isValid))
+}
+
+// WithTime creates an entry from the standard logger and adds an time field to it.
+func (ulog *UPPLogger) WithTime(time time.Time) *LogEntry {
+	return ulog.WithField(ulog.keyConf.KeyTime, time.Format(timestampFormat))
+}
+
+// WithMonitoringEvent creates an entry from the standard logger and adds monitoring event fields to it.
+// The monitoring event fields are "monitoring_event", "event" and "content_type".
+func (ulog *UPPLogger) WithMonitoringEvent(eventName, tid, contentType string) *LogEntry {
+	e := ulog.WithFields(
+		map[string]interface{}{
+			ulog.keyConf.KeyMonitoringEvent: "true",
+			ulog.keyConf.KeyEventName:       eventName,
+			ulog.keyConf.KeyContentType:     contentType,
+		})
 	return e.WithTransactionID(tid)
 }
 
-// Debug logs a message at level Debug on the standard logger.
-func Debug(args ...interface{}) {
-	log.Debug(args...)
-}
-
-// Print logs a message at level Info on the standard logger.
-func Print(args ...interface{}) {
-	log.Print(args...)
-}
-
-// Info logs a message at level Info on the standard logger.
-func Info(args ...interface{}) {
-	log.Info(args...)
-}
-
-// Warn logs a message at level Warn on the standard logger.
-func Warn(args ...interface{}) {
-	log.Warn(args...)
-}
-
-// Warning logs a message at level Warn on the standard logger.
-func Warning(args ...interface{}) {
-	log.Warning(args...)
-}
-
-// Error logs a message at level Error on the standard logger.
-func Error(args ...interface{}) {
-	log.Error(args...)
-}
-
-// Panic logs a message at level Panic on the standard logger.
-func Panic(args ...interface{}) {
-	log.Panic(args...)
-}
-
-// Fatal logs a message at level Fatal on the standard logger.
-func Fatal(args ...interface{}) {
-	log.Fatal(args...)
-}
-
-// Debugf logs a message at level Debug on the standard logger.
-func Debugf(format string, args ...interface{}) {
-	log.Debugf(format, args...)
-}
-
-// Printf logs a message at level Info on the standard logger.
-func Printf(format string, args ...interface{}) {
-	log.Printf(format, args...)
-}
-
-// Infof logs a message at level Info on the standard logger.
-func Infof(format string, args ...interface{}) {
-	log.Infof(format, args...)
-}
-
-// Warnf logs a message at level Warn on the standard logger.
-func Warnf(format string, args ...interface{}) {
-	log.Warnf(format, args...)
-}
-
-// Warningf logs a message at level Warn on the standard logger.
-func Warningf(format string, args ...interface{}) {
-	log.Warningf(format, args...)
-}
-
-// Errorf logs a message at level Error on the standard logger.
-func Errorf(format string, args ...interface{}) {
-	log.Errorf(format, args...)
-}
-
-// Panicf logs a message at level Panic on the standard logger.
-func Panicf(format string, args ...interface{}) {
-	log.Panicf(format, args...)
-}
-
-// Fatalf logs a message at level Fatal on the standard logger.
-func Fatalf(format string, args ...interface{}) {
-	log.Fatalf(format, args...)
-}
-
-// Debugln logs a message at level Debug on the standard logger.
-func Debugln(args ...interface{}) {
-	log.Debugln(args...)
-}
-
-// Println logs a message at level Info on the standard logger.
-func Println(args ...interface{}) {
-	log.Println(args...)
-}
-
-// Infoln logs a message at level Info on the standard logger.
-func Infoln(args ...interface{}) {
-	log.Infoln(args...)
-}
-
-// Warnln logs a message at level Warn on the standard logger.
-func Warnln(args ...interface{}) {
-	log.Warnln(args...)
-}
-
-// Warningln logs a message at level Warn on the standard logger.
-func Warningln(args ...interface{}) {
-	log.Warningln(args...)
-}
-
-// Errorln logs a message at level Error on the standard logger.
-func Errorln(args ...interface{}) {
-	log.Errorln(args...)
-}
-
-// Panicln logs a message at level Panic on the standard logger.
-func Panicln(args ...interface{}) {
-	log.Panicln(args...)
-}
-
-// Fatalln logs a message at level Fatal on the standard logger.
-func Fatalln(args ...interface{}) {
-	log.Fatalln(args...)
+// WithCategorisedEvent creates an entry from the standard logger and adds categorised event fields to it.
+// The added fields are "event", "event_category" and "event_msg".
+func (ulog *UPPLogger) WithCategorisedEvent(eventName, eventCategory, eventMsg, tid string) *LogEntry {
+	e := ulog.WithFields(
+		map[string]interface{}{
+			ulog.keyConf.KeyEventName:     eventName,
+			ulog.keyConf.KeyEventCategory: eventCategory,
+			ulog.keyConf.KeyEventMsg:      eventMsg,
+		})
+	return e.WithTransactionID(tid)
 }

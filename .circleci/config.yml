@@ -1,0 +1,45 @@
+version: 2
+jobs:
+  build:
+    working_directory: /src
+    docker:
+      - image: golang:1
+        environment:
+          GOPATH: /go
+          CIRCLE_TEST_REPORTS: /tmp/test-results
+          CIRCLE_COVERAGE_REPORT: /tmp/coverage-results
+    steps:
+      - checkout
+      - run:
+          name: External Dependencies
+          command: |
+            GO111MODULE=off go get -u github.com/mattn/goveralls
+            GO111MODULE=off go get -u github.com/jstemmer/go-junit-report
+            GO111MODULE=off go get -u github.com/golangci/golangci-lint/cmd/golangci-lint
+            git clone git@github.com:Financial-Times/upp-coding-standard.git
+      - run:
+          name: Test Results
+          command: |
+            mkdir -p ${CIRCLE_TEST_REPORTS}
+            mkdir -p ${CIRCLE_COVERAGE_REPORT}
+      - run:
+          name: Go Build
+          command: GO111MODULE=on go build -mod=readonly -v
+      - run:
+          name: Run linters
+          command: |
+            golangci-lint run --config upp-coding-standard/golangci-config/.golangci.yml
+      - run:
+          name: Run Tests
+          command: |
+            GO111MODULE=on go test -mod=readonly -race -cover -coverprofile=${CIRCLE_COVERAGE_REPORT}/coverage.out ./... | go-junit-report > ${CIRCLE_TEST_REPORTS}/junit.xml
+      - run:
+          name: Upload Coverage
+          command: goveralls -coverprofile=${CIRCLE_COVERAGE_REPORT}/coverage.out -service=circle-ci -repotoken=${COVERALLS_TOKEN}
+      - store_test_results:
+          path: /tmp/test-results
+workflows:
+  version: 2
+  test-and-lint:
+    jobs:
+      - build
