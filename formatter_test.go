@@ -167,3 +167,38 @@ func TestFtJSONFormatterWithStructuredEvent(t *testing.T) {
 	assert.Equal(t, testMsg, logLine[logrus.FieldKeyMsg])
 	assert.Equal(t, logrus.InfoLevel.String(), logLine[logrus.FieldKeyLevel])
 }
+
+func TestFtJSONFormatterEmptyVals(t *testing.T) {
+	f := newFTJSONFormatter(testServiceName, GetDefaultKeyNamesConfig())
+	ulog := NewUnstructuredLogger()
+	fields := map[string]interface{}{
+		"key-with-val": "val",
+		"key-empty":    "",
+		"key-nil":      nil,
+	}
+	e := ulog.WithFields(fields).WithTransactionID(testTID)
+	e.Time = time.Now()
+	e.Message = ""
+	e.Level = logrus.InfoLevel
+
+	logLineBytes, err := f.Format(e.Entry)
+	assert.NoError(t, err)
+
+	var logLine map[string]string
+	err = json.Unmarshal(logLineBytes, &logLine)
+	assert.NoError(t, err)
+	assert.Len(t, logLine, 5)
+
+	actualTime, err := time.Parse(timestampFormat, logLine[DefaultKeyTime])
+	assert.NoError(t, err)
+	assert.WithinDuration(t, time.Now(), actualTime, 2*time.Second)
+
+	assert.Equal(t, testServiceName, logLine[DefaultKeyServiceName])
+	assert.Equal(t, testTID, logLine[DefaultKeyTransactionID])
+	assert.Equal(t, "val", logLine["key-with-val"])
+	assert.Equal(t, logrus.InfoLevel.String(), logLine[logrus.FieldKeyLevel])
+
+	assert.NotContains(t, logLine, "key-empty")
+	assert.NotContains(t, logLine, "key-nil")
+	assert.NotContains(t, logLine, logrus.FieldKeyMsg)
+}
