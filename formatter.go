@@ -35,7 +35,9 @@ func (f *ftJSONFormatter) Format(entry *logrus.Entry) ([]byte, error) {
 			// Otherwise errors are ignored by `encoding/json`
 			data[k] = v.Error()
 		default:
-			data[k] = v
+			if v != nil && v != "" {
+				data[k] = v
+			}
 		}
 	}
 
@@ -43,7 +45,9 @@ func (f *ftJSONFormatter) Format(entry *logrus.Entry) ([]byte, error) {
 		data[f.keyConf.KeyTime] = entry.Time.Format(timestampFormat)
 	}
 
-	data[f.keyConf.KeyMsg] = entry.Message
+	if entry.Message != "" {
+		data[f.keyConf.KeyMsg] = entry.Message
+	}
 	data[f.keyConf.KeyLogLevel] = entry.Level.String()
 	data[f.keyConf.KeyServiceName] = f.serviceName
 
