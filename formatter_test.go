@@ -22,8 +22,13 @@ const (
 
 func TestFtJSONFormatter(t *testing.T) {
 	f := newFTJSONFormatter(testServiceName, GetDefaultKeyNamesConfig())
-	ulog := NewUnstructuredLogger()
-	e := ulog.WithMonitoringEvent(testEvent, testTID, testContentType).WithError(errors.New(testErrMsg))
+	ilog := NewUnstructuredLogger()
+	ulog, _ := ilog.(*UPPLogger)
+	ientry := ulog.
+		WithMonitoringEvent(testEvent, testTID, testContentType).
+		WithError(errors.New(testErrMsg))
+
+	e, _ := ientry.(*UPPLogEntry)
 	e.Time = time.Now()
 	e.Message = testMsg
 	e.Level = logrus.InfoLevel
@@ -63,8 +68,12 @@ func TestFtJSONFormatterWithConf(t *testing.T) {
 		KeyContentType:     "test-content-type",
 	}
 	f := newFTJSONFormatter(testServiceName, GetFullKeyNameConfig(conf))
-	ulog := NewUPPInfoLogger(testServiceName, conf)
-	e := ulog.WithMonitoringEvent(testEvent, testTID, testContentType).WithError(errors.New(testErrMsg))
+	ilog := NewUPPInfoLogger(testServiceName, conf)
+	ulog, _ := ilog.(*UPPLogger)
+	ientry := ulog.
+		WithMonitoringEvent(testEvent, testTID, testContentType).
+		WithError(errors.New(testErrMsg))
+	e, _ := ientry.(*UPPLogEntry)
 	e.Time = time.Now()
 	e.Message = testMsg
 	e.Level = logrus.InfoLevel
@@ -94,9 +103,14 @@ func TestFtJSONFormatterWithConf(t *testing.T) {
 func TestFtJSONFormatterWithLogTimeField(t *testing.T) {
 	myExpectedTime := time.Unix(rand.Int63n(time.Now().Unix()), rand.Int63n(1000000000))
 	f := newFTJSONFormatter(testServiceName, GetDefaultKeyNamesConfig())
-	ulog := NewUnstructuredLogger()
-	e := ulog.WithMonitoringEvent(testEvent, testTID, testContentType).WithTime(myExpectedTime).
+	ilog := NewUnstructuredLogger()
+	ulog, _ := ilog.(*UPPLogger)
+	ientry := ulog.
+		WithMonitoringEvent(testEvent, testTID, testContentType).
+		WithTime(myExpectedTime).
 		WithError(errors.New(testErrMsg))
+
+	e, _ := ientry.(*UPPLogEntry)
 	e.Time = time.Now()
 	e.Message = testMsg
 	e.Level = logrus.InfoLevel
@@ -125,8 +139,10 @@ func TestFtJSONFormatterWithLogTimeField(t *testing.T) {
 
 func TestLoggerWithoutInitialisation(t *testing.T) {
 	f := newFTJSONFormatter("", GetDefaultKeyNamesConfig())
-	ulog := NewUnstructuredLogger()
-	e := ulog.WithMonitoringEvent(testEvent, testTID, testContentType).WithError(errors.New(testErrMsg))
+	ilog := NewUnstructuredLogger()
+	ulog, _ := ilog.(*UPPLogger)
+	ientry := ulog.WithMonitoringEvent(testEvent, testTID, testContentType).WithError(errors.New(testErrMsg))
+	e, _ := ientry.(*UPPLogEntry)
 	e.Time = time.Now()
 	e.Message = testMsg
 	e.Level = logrus.ErrorLevel
@@ -139,9 +155,12 @@ func TestLoggerWithoutInitialisation(t *testing.T) {
 
 func TestFtJSONFormatterWithStructuredEvent(t *testing.T) {
 	f := newFTJSONFormatter(testServiceName, GetDefaultKeyNamesConfig())
-	ulog := NewUnstructuredLogger()
-	e := ulog.WithCategorisedEvent(testEvent, "event-category", "event-msg", testTID).
+	ilog := NewUnstructuredLogger()
+	ulog, _ := ilog.(*UPPLogger)
+	ientry := ulog.
+		WithCategorisedEvent(testEvent, "event-category", "event-msg", testTID).
 		WithError(errors.New(testErrMsg))
+	e, _ := ientry.(*UPPLogEntry)
 	e.Time = time.Now()
 	e.Message = testMsg
 	e.Level = logrus.InfoLevel
@@ -170,13 +189,15 @@ func TestFtJSONFormatterWithStructuredEvent(t *testing.T) {
 
 func TestFtJSONFormatterEmptyVals(t *testing.T) {
 	f := newFTJSONFormatter(testServiceName, GetDefaultKeyNamesConfig())
-	ulog := NewUnstructuredLogger()
+	ilog := NewUnstructuredLogger()
+	ulog, _ := ilog.(*UPPLogger)
 	fields := map[string]interface{}{
 		"key-with-val": "val",
 		"key-empty":    "",
 		"key-nil":      nil,
 	}
-	e := ulog.WithFields(fields).WithTransactionID(testTID)
+	ientry := ulog.WithFields(fields).WithTransactionID(testTID)
+	e, _ := ientry.(*UPPLogEntry)
 	e.Time = time.Now()
 	e.Message = ""
 	e.Level = logrus.InfoLevel

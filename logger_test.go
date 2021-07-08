@@ -9,7 +9,8 @@ import (
 )
 
 func TestNewUPPLogger(t *testing.T) {
-	ulog := NewUPPLogger("test_service", "info")
+	ilog := NewUPPLogger("test_service", "info")
+	ulog, _ := ilog.(*UPPLogger)
 	hook := test.NewLocal(ulog.Logger)
 
 	assert.Nil(t, hook.LastEntry())
@@ -23,7 +24,8 @@ func TestNewUPPLogger(t *testing.T) {
 }
 
 func TestNewUPPLoggerDefaultConf(t *testing.T) {
-	ulog := NewUPPInfoLogger("test_service")
+	ilog := NewUPPInfoLogger("test_service")
+	ulog, _ := ilog.(*UPPLogger)
 	assert.Equal(t, ulog.keyConf, GetDefaultKeyNamesConfig())
 }
 
@@ -32,14 +34,16 @@ func TestNewUPPLoggerWithConf(t *testing.T) {
 		KeyLogLevel: "TEST_LOG_LEVEL",
 		KeyMsg:      "TEST_LOG_MSG",
 	}
-	ulog := NewUPPLogger("test_service", "info", conf)
+	ilog := NewUPPLogger("test_service", "info", conf)
+	ulog, _ := ilog.(*UPPLogger)
 	assert.Equal(t, "TEST_LOG_LEVEL", ulog.keyConf.KeyLogLevel)
 	assert.Equal(t, "TEST_LOG_MSG", ulog.keyConf.KeyMsg)
 	assert.Equal(t, DefaultKeyTransactionID, ulog.keyConf.KeyTransactionID)
 }
 
 func TestNewUPPInfoLogger(t *testing.T) {
-	ulog := NewUPPInfoLogger("test_service")
+	ilog := NewUPPInfoLogger("test_service")
+	ulog, _ := ilog.(*UPPLogger)
 	assert.Equal(t, logrus.InfoLevel, ulog.Logger.Level)
 	assert.Equal(t, ulog.keyConf, GetDefaultKeyNamesConfig())
 }
@@ -49,7 +53,8 @@ func TestNewUPPInfoLoggerWithConf(t *testing.T) {
 		KeyLogLevel: "TEST_LOG_LEVEL",
 		KeyMsg:      "TEST_LOG_MSG",
 	}
-	ulog := NewUPPInfoLogger("test_service", conf)
+	ilog := NewUPPInfoLogger("test_service", conf)
+	ulog, _ := ilog.(*UPPLogger)
 	assert.Equal(t, logrus.InfoLevel, ulog.Logger.Level)
 	assert.Equal(t, "TEST_LOG_LEVEL", ulog.keyConf.KeyLogLevel)
 	assert.Equal(t, "TEST_LOG_MSG", ulog.keyConf.KeyMsg)
@@ -57,6 +62,7 @@ func TestNewUPPInfoLoggerWithConf(t *testing.T) {
 }
 
 func TestNewUnstructuredLogger(t *testing.T) {
-	ulog := NewUnstructuredLogger()
+	ilog := NewUnstructuredLogger()
+	ulog, _ := ilog.(*UPPLogger)
 	assert.Equal(t, ulog.keyConf, GetDefaultKeyNamesConfig())
 }

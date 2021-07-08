@@ -13,10 +13,10 @@ import (
 
 // The set of these unit tests aim to test the common methods (for both the logger and the entry) but called
 // on the entry object. That's why we are looking at the second calls in one call chain.
-
 func TestLogEntryWithTime(t *testing.T) {
 	ulog := NewUPPInfoLogger("test_service")
-	hook := test.NewLocal(ulog.Logger)
+	log, _ := ulog.(*UPPLogger)
+	hook := test.NewLocal(log.Logger)
 
 	myExpectedTime := time.Unix(rand.Int63n(time.Now().Unix()), rand.Int63n(1000000000))
 	ulog.WithMonitoringEvent("an-event", "tid_test", "some-content").WithTime(myExpectedTime).Info("This is a custom time for my event")
@@ -34,7 +34,8 @@ func TestLogEntryWithTime(t *testing.T) {
 
 func TestLogEntryWithTransactionID(t *testing.T) {
 	conf := KeyNamesConfig{KeyTransactionID: "test-trans-id"}
-	ulog := NewUPPInfoLogger("test_service", conf)
+	ilog := NewUPPInfoLogger("test_service", conf)
+	ulog, _ := ilog.(*UPPLogger)
 	hook := test.NewLocal(ulog.Logger)
 	expectedUUID := "50484f2a-a51d-42d8-8deb-11a1d25e6b45"
 
@@ -49,7 +50,8 @@ func TestLogEntryWithTransactionID(t *testing.T) {
 }
 
 func TestLogEntryWithValidFlagTrue(t *testing.T) {
-	ulog := NewUPPInfoLogger("test_service")
+	ilog := NewUPPInfoLogger("test_service")
+	ulog, _ := ilog.(*UPPLogger)
 	hook := test.NewLocal(ulog.Logger)
 
 	ulog.WithMonitoringEvent("an-event", "tid_test", "some-content").WithValidFlag(true).Info("a info message")
@@ -65,7 +67,8 @@ func TestLogEntryWithValidFlagTrue(t *testing.T) {
 }
 
 func TestLogEntryWithValidFlagFalse(t *testing.T) {
-	ulog := NewUPPInfoLogger("test_service")
+	ilog := NewUPPInfoLogger("test_service")
+	ulog, _ := ilog.(*UPPLogger)
 	hook := test.NewLocal(ulog.Logger)
 
 	ulog.WithMonitoringEvent("an-event", "tid_test", "some-content").
@@ -83,7 +86,8 @@ func TestLogEntryWithValidFlagFalse(t *testing.T) {
 
 func TestLogEntryWithMonitoringEvent(t *testing.T) {
 	conf := KeyNamesConfig{KeyEventName: "test-event-name"}
-	ulog := NewUPPInfoLogger("test_service", conf)
+	ilog := NewUPPInfoLogger("test_service", conf)
+	ulog, _ := ilog.(*UPPLogger)
 	hook := test.NewLocal(ulog.Logger)
 
 	ulog.WithUUID("test-uuid-value").
@@ -101,7 +105,8 @@ func TestLogEntryWithMonitoringEvent(t *testing.T) {
 
 func TestLogEntryWithCategorisedEvent(t *testing.T) {
 	conf := KeyNamesConfig{KeyEventCategory: "test-event-category-key"}
-	ulog := NewUPPInfoLogger("test_service", conf)
+	ilog := NewUPPInfoLogger("test_service", conf)
+	ulog, _ := ilog.(*UPPLogger)
 	hook := test.NewLocal(ulog.Logger)
 
 	ulog.WithUUID("test-uuid-value").

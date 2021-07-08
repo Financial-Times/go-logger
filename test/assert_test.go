@@ -13,7 +13,9 @@ import (
 
 func TestAssertHasField(t *testing.T) {
 	mockT := new(testing.T)
-	ulog := logger.NewUPPInfoLogger("test_service")
+	ilog := logger.NewUPPInfoLogger("test_service")
+	ulog, _ := ilog.(*logger.UPPLogger)
+
 	hook := test.NewLocal(ulog.Logger)
 	ulog.WithField("foo", "bar").Info()
 	e := hook.LastEntry()
@@ -23,7 +25,8 @@ func TestAssertHasField(t *testing.T) {
 
 func TestAssertHasFieldFailed(t *testing.T) {
 	mockT := new(testing.T)
-	ulog := logger.NewUPPInfoLogger("test_service")
+	ilog := logger.NewUPPInfoLogger("test_service")
+	ulog, _ := ilog.(*logger.UPPLogger)
 	hook := test.NewLocal(ulog.Logger)
 	ulog.WithField("foo", "bar").Info()
 	e := hook.LastEntry()
@@ -33,7 +36,8 @@ func TestAssertHasFieldFailed(t *testing.T) {
 
 func TestAssertHasError(t *testing.T) {
 	mockT := new(testing.T)
-	ulog := logger.NewUPPInfoLogger("test_service")
+	ilog := logger.NewUPPInfoLogger("test_service")
+	ulog, _ := ilog.(*logger.UPPLogger)
 	hook := test.NewLocal(ulog.Logger)
 	ulog.WithError(assert.AnError).Error()
 	e := hook.LastEntry()
@@ -43,7 +47,8 @@ func TestAssertHasError(t *testing.T) {
 
 func TestAssertHasErrorFailed(t *testing.T) {
 	mockT := new(testing.T)
-	ulog := logger.NewUPPInfoLogger("test_service")
+	ilog := logger.NewUPPInfoLogger("test_service")
+	ulog, _ := ilog.(*logger.UPPLogger)
 	hook := test.NewLocal(ulog.Logger)
 	ulog.Error()
 	e := hook.LastEntry()
@@ -53,7 +58,8 @@ func TestAssertHasErrorFailed(t *testing.T) {
 
 func TestAssertHasFields(t *testing.T) {
 	mockT := new(testing.T)
-	ulog := logger.NewUPPInfoLogger("test_service")
+	ilog := logger.NewUPPInfoLogger("test_service")
+	ulog, _ := ilog.(*logger.UPPLogger)
 	hook := test.NewLocal(ulog.Logger)
 	fields := map[string]interface{}{"foo1": "bar1", "foo2": "bar2"}
 	ulog.WithFields(fields).Info()
@@ -64,7 +70,8 @@ func TestAssertHasFields(t *testing.T) {
 
 func TestAssertHasFieldsFailed(t *testing.T) {
 	mockT := new(testing.T)
-	ulog := logger.NewUPPInfoLogger("test_service")
+	ilog := logger.NewUPPInfoLogger("test_service")
+	ulog, _ := ilog.(*logger.UPPLogger)
 	hook := test.NewLocal(ulog.Logger)
 	fields := map[string]interface{}{"foo1": "bar1", "foo2": "bar2"}
 	ulog.WithFields(fields).Info()
@@ -76,7 +83,8 @@ func TestAssertHasFieldsFailed(t *testing.T) {
 
 func TestAssertHasMonitoringEvent(t *testing.T) {
 	mockT := new(testing.T)
-	ulog := logger.NewUPPInfoLogger("test_service")
+	ilog := logger.NewUPPInfoLogger("test_service")
+	ulog, _ := ilog.(*logger.UPPLogger)
 	hook := test.NewLocal(ulog.Logger)
 	ulog.WithMonitoringEvent("anEvent", "tid_test", "aContentType").Info()
 	e := hook.LastEntry()
@@ -86,7 +94,8 @@ func TestAssertHasMonitoringEvent(t *testing.T) {
 
 func TestAssertHasMonitoringEventFailedByEvent(t *testing.T) {
 	mockT := new(testing.T)
-	ulog := logger.NewUPPInfoLogger("test_service")
+	ilog := logger.NewUPPInfoLogger("test_service")
+	ulog, _ := ilog.(*logger.UPPLogger)
 	hook := test.NewLocal(ulog.Logger)
 	ulog.WithMonitoringEvent("anEvent", "tid_test", "aContentType").Info()
 	e := hook.LastEntry()
@@ -96,7 +105,8 @@ func TestAssertHasMonitoringEventFailedByEvent(t *testing.T) {
 
 func TestAssertHasMonitoringEventFailedByTransactionID(t *testing.T) {
 	mockT := new(testing.T)
-	ulog := logger.NewUPPInfoLogger("test_service")
+	ilog := logger.NewUPPInfoLogger("test_service")
+	ulog, _ := ilog.(*logger.UPPLogger)
 	hook := test.NewLocal(ulog.Logger)
 	ulog.WithMonitoringEvent("anEvent", "tid_test", "aContentType").Info()
 	e := hook.LastEntry()
@@ -106,7 +116,8 @@ func TestAssertHasMonitoringEventFailedByTransactionID(t *testing.T) {
 
 func TestAssertHasMonitoringEventFailedByContentType(t *testing.T) {
 	mockT := new(testing.T)
-	ulog := logger.NewUPPInfoLogger("test_service")
+	ilog := logger.NewUPPInfoLogger("test_service")
+	ulog, _ := ilog.(*logger.UPPLogger)
 	hook := test.NewLocal(ulog.Logger)
 	ulog.WithMonitoringEvent("anEvent", "tid_test", "aContentType").Info()
 	e := hook.LastEntry()
@@ -116,7 +127,8 @@ func TestAssertHasMonitoringEventFailedByContentType(t *testing.T) {
 
 func TestAssertHasTime(t *testing.T) {
 	mockT := new(testing.T)
-	ulog := logger.NewUPPInfoLogger("test_service")
+	ilog := logger.NewUPPInfoLogger("test_service")
+	ulog, _ := ilog.(*logger.UPPLogger)
 	hook := test.NewLocal(ulog.Logger)
 	expectedTime := time.Unix(rand.Int63n(time.Now().Unix()), rand.Int63n(1000000000))
 	ulog.WithTransactionID("tid_test").WithTime(expectedTime).Info()
@@ -127,7 +139,8 @@ func TestAssertHasTime(t *testing.T) {
 
 func TestAssertHasTimeFailed(t *testing.T) {
 	mockT := new(testing.T)
-	ulog := logger.NewUPPInfoLogger("test_service")
+	ilog := logger.NewUPPInfoLogger("test_service")
+	ulog, _ := ilog.(*logger.UPPLogger)
 	hook := test.NewLocal(ulog.Logger)
 	unexpectedTime := time.Date(2003, time.August, 23, 12, 4, 5, 123, time.UTC)
 	ulog.WithTransactionID("tid_test").WithTime(time.Now()).Info()
@@ -138,7 +151,8 @@ func TestAssertHasTimeFailed(t *testing.T) {
 
 func TestAssertHasTransactionID(t *testing.T) {
 	mockT := new(testing.T)
-	ulog := logger.NewUPPInfoLogger("test_service")
+	ilog := logger.NewUPPInfoLogger("test_service")
+	ulog, _ := ilog.(*logger.UPPLogger)
 	hook := test.NewLocal(ulog.Logger)
 	ulog.WithTransactionID("tid_test").Info()
 	e := hook.LastEntry()
@@ -148,7 +162,8 @@ func TestAssertHasTransactionID(t *testing.T) {
 
 func TestAssertHasTransactionIDFailed(t *testing.T) {
 	mockT := new(testing.T)
-	ulog := logger.NewUPPInfoLogger("test_service")
+	ilog := logger.NewUPPInfoLogger("test_service")
+	ulog, _ := ilog.(*logger.UPPLogger)
 	hook := test.NewLocal(ulog.Logger)
 	ulog.WithTransactionID("tid_test").Info()
 	e := hook.LastEntry()
@@ -158,7 +173,8 @@ func TestAssertHasTransactionIDFailed(t *testing.T) {
 
 func TestAssertHasUUID(t *testing.T) {
 	mockT := new(testing.T)
-	ulog := logger.NewUPPInfoLogger("test_service")
+	ilog := logger.NewUPPInfoLogger("test_service")
+	ulog, _ := ilog.(*logger.UPPLogger)
 	hook := test.NewLocal(ulog.Logger)
 	ulog.WithTransactionID("tid_test").WithUUID("dbc40c07-63ef-4ea3-82d6-a5a5d8747363").Info()
 	e := hook.LastEntry()
@@ -168,7 +184,8 @@ func TestAssertHasUUID(t *testing.T) {
 
 func TestAssertHasUUIDFailed(t *testing.T) {
 	mockT := new(testing.T)
-	ulog := logger.NewUPPInfoLogger("test_service")
+	ilog := logger.NewUPPInfoLogger("test_service")
+	ulog, _ := ilog.(*logger.UPPLogger)
 	hook := test.NewLocal(ulog.Logger)
 	ulog.WithTransactionID("tid_test").WithUUID("dbc40c07-63ef-4ea3-82d6-a5a5d8747363").Info()
 	e := hook.LastEntry()
@@ -178,7 +195,8 @@ func TestAssertHasUUIDFailed(t *testing.T) {
 
 func TestAssertHasValidFlagTrue(t *testing.T) {
 	mockT := new(testing.T)
-	ulog := logger.NewUPPInfoLogger("test_service")
+	ilog := logger.NewUPPInfoLogger("test_service")
+	ulog, _ := ilog.(*logger.UPPLogger)
 	hook := test.NewLocal(ulog.Logger)
 	ulog.WithTransactionID("tid_test").WithValidFlag(true).Info()
 	e := hook.LastEntry()
@@ -188,7 +206,8 @@ func TestAssertHasValidFlagTrue(t *testing.T) {
 
 func TestAssertHasValidFlagTrueFailed(t *testing.T) {
 	mockT := new(testing.T)
-	ulog := logger.NewUPPInfoLogger("test_service")
+	ilog := logger.NewUPPInfoLogger("test_service")
+	ulog, _ := ilog.(*logger.UPPLogger)
 	hook := test.NewLocal(ulog.Logger)
 	ulog.WithTransactionID("tid_test").WithValidFlag(true).Info()
 	e := hook.LastEntry()
@@ -198,7 +217,8 @@ func TestAssertHasValidFlagTrueFailed(t *testing.T) {
 
 func TestAssertHasValidFlagFalse(t *testing.T) {
 	mockT := new(testing.T)
-	ulog := logger.NewUPPInfoLogger("test_service")
+	ilog := logger.NewUPPInfoLogger("test_service")
+	ulog, _ := ilog.(*logger.UPPLogger)
 	hook := test.NewLocal(ulog.Logger)
 	ulog.WithTransactionID("tid_test").WithValidFlag(false).Info()
 	e := hook.LastEntry()
@@ -208,7 +228,8 @@ func TestAssertHasValidFlagFalse(t *testing.T) {
 
 func TestAssertHasValidFlagFalseFailed(t *testing.T) {
 	mockT := new(testing.T)
-	ulog := logger.NewUPPInfoLogger("test_service")
+	ilog := logger.NewUPPInfoLogger("test_service")
+	ulog, _ := ilog.(*logger.UPPLogger)
 	hook := test.NewLocal(ulog.Logger)
 	ulog.WithTransactionID("tid_test").WithValidFlag(false).Info()
 	e := hook.LastEntry()
@@ -217,7 +238,8 @@ func TestAssertHasValidFlagFalseFailed(t *testing.T) {
 }
 
 func TestNoDataRace(t *testing.T) {
-	ulog := logger.NewUPPInfoLogger("test_service")
+	ilog := logger.NewUPPInfoLogger("test_service")
+	ulog, _ := ilog.(*logger.UPPLogger)
 	hook := test.NewLocal(ulog.Logger)
 	go func() {
 		ulog.Info("Something info")
