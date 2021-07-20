@@ -8,10 +8,6 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-const (
-	serviceStartedEvent = "service_started"
-)
-
 type Logger interface {
 	WithField(string, interface{}) LogEntry
 	WithFields(map[string]interface{}) LogEntry
