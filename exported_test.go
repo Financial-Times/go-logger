@@ -13,7 +13,8 @@ import (
 // on the logger object. That's why we are looking at the first calls in one call chain.
 
 func TestUPPLoggerWithUUID(t *testing.T) {
-	ulog := NewUPPInfoLogger("test_service")
+	ilog := NewUPPInfoLogger("test_service")
+	ulog, _ := ilog.(*UPPLogger)
 	hook := test.NewLocal(ulog.Logger)
 
 	ulog.WithUUID("test-uuid").Info("test info message")
@@ -27,7 +28,8 @@ func TestUPPLoggerWithUUID(t *testing.T) {
 
 func TestUPPLoggerWithIsValid(t *testing.T) {
 	conf := KeyNamesConfig{KeyIsValid: "test-is-valid-key"}
-	ulog := NewUPPInfoLogger("test_service", conf)
+	ilog := NewUPPInfoLogger("test_service", conf)
+	ulog, _ := ilog.(*UPPLogger)
 	hook := test.NewLocal(ulog.Logger)
 
 	ulog.WithValidFlag(true).Info("test info message")
@@ -41,7 +43,8 @@ func TestUPPLoggerWithIsValid(t *testing.T) {
 
 func TestUPPLoggerWithTime(t *testing.T) {
 	conf := KeyNamesConfig{KeyTime: "test-time-key"}
-	ulog := NewUPPInfoLogger("test_service", conf)
+	ilog := NewUPPInfoLogger("test_service", conf)
+	ulog, _ := ilog.(*UPPLogger)
 	hook := test.NewLocal(ulog.Logger)
 
 	myTime := time.Now()
@@ -55,7 +58,8 @@ func TestUPPLoggerWithTime(t *testing.T) {
 }
 
 func TestWithMonitoringEvent(t *testing.T) {
-	ulog := NewUPPInfoLogger("test_service")
+	ilog := NewUPPInfoLogger("test_service")
+	ulog, _ := ilog.(*UPPLogger)
 	hook := test.NewLocal(ulog.Logger)
 
 	ulog.WithMonitoringEvent("an-event", "tid_test", "some-content").Info("a info message")
@@ -74,7 +78,8 @@ func TestWithMonitoringEventWithConf(t *testing.T) {
 		KeyMonitoringEvent: "test-monitoring-key",
 		KeyContentType:     "test-content-type-key",
 	}
-	ulog := NewUPPInfoLogger("test_service", conf)
+	ilog := NewUPPInfoLogger("test_service", conf)
+	ulog, _ := ilog.(*UPPLogger)
 	hook := test.NewLocal(ulog.Logger)
 
 	ulog.WithMonitoringEvent("an-event", "tid_test", "some-content").Info("a info message")
@@ -90,7 +95,8 @@ func TestWithMonitoringEventWithConf(t *testing.T) {
 }
 
 func TestWithTransactionID(t *testing.T) {
-	ulog := NewUPPInfoLogger("test_service")
+	ilog := NewUPPInfoLogger("test_service")
+	ulog, _ := ilog.(*UPPLogger)
 	hook := test.NewLocal(ulog.Logger)
 
 	ulog.WithTransactionID("tid_test").Info("a info message")
@@ -103,7 +109,8 @@ func TestWithTransactionID(t *testing.T) {
 }
 
 func TestWithCategorisedEvent(t *testing.T) {
-	ulog := NewUPPInfoLogger("test_service")
+	ilog := NewUPPInfoLogger("test_service")
+	ulog, _ := ilog.(*UPPLogger)
 	hook := test.NewLocal(ulog.Logger)
 
 	ulog.WithCategorisedEvent("an-event", "an-event-category", "an-event-msg", "tid_test").Info("a info message")

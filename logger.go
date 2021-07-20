@@ -1,12 +1,24 @@
 package logger
 
+//go:generate moq -out logger_mock.go . Logger
+
 import (
+	"time"
+
 	"github.com/sirupsen/logrus"
 )
 
-const (
-	serviceStartedEvent = "service_started"
-)
+type Logger interface {
+	WithField(string, interface{}) LogEntry
+	WithFields(map[string]interface{}) LogEntry
+	WithUUID(string) LogEntry
+	WithValidFlag(bool) LogEntry
+	WithTime(time.Time) LogEntry
+	WithTransactionID(string) LogEntry
+	WithError(error) LogEntry
+	WithMonitoringEvent(string, string, string) LogEntry
+	WithCategorisedEvent(string, string, string, string) LogEntry
+}
 
 // UPPLogger wraps logrus logger providing the same functionality as logrus with a few UPP specifics.
 type UPPLogger struct {
@@ -15,7 +27,7 @@ type UPPLogger struct {
 }
 
 // NewUPPLogger initializes UPP logger with structured logging format.
-func NewUPPLogger(serviceName string, logLevel string, kconf ...KeyNamesConfig) *UPPLogger {
+func NewUPPLogger(serviceName string, logLevel string, kconf ...KeyNamesConfig) Logger {
 	keyConf := GetDefaultKeyNamesConfig()
 	if len(kconf) > 0 {
 		keyConf = GetFullKeyNameConfig(kconf[0])
@@ -36,19 +48,11 @@ func NewUPPLogger(serviceName string, logLevel string, kconf ...KeyNamesConfig) 
 }
 
 // NewUPPInfoLogger initializes UPPLogger with log level INFO.
-func NewUPPInfoLogger(serviceName string, kconf ...KeyNamesConfig) *UPPLogger {
+func NewUPPInfoLogger(serviceName string, kconf ...KeyNamesConfig) Logger {
 	return NewUPPLogger(serviceName, logrus.InfoLevel.String(), kconf...)
 }
 
 // NewUnstructuredLogger initializes plain logrus log without taking into account UPP log formatting.
-func NewUnstructuredLogger() *UPPLogger {
+func NewUnstructuredLogger() Logger {
 	return &UPPLogger{Logger: logrus.New(), keyConf: GetDefaultKeyNamesConfig()}
-}
-
-// LogServiceStartedEvent logs service started event with level INFO.
-func (ulog *UPPLogger) LogServiceStartedEvent(port int) {
-	fields := map[string]interface{}{
-		ulog.keyConf.KeyEventName: serviceStartedEvent,
-	}
-	ulog.WithFields(fields).Infof("Service running on port [%d]", port)
 }
