@@ -9,18 +9,19 @@ So the UPP logger can be used where standard Go log is required.
 
 UPP logger shares the same log levels as logrus - debug, info, warning, error, fatal, panic.
 
-### Initialization
+## Initialization
+
 When working with this logger library, please use one of the init methods:
-- `NewUPPLogger` - requires a serviceName and a logLevel as parameters. Also there is additional optional parameter - 
-configuration for the names of the field keys logged by the UPP logger methods. 
-- `NewUPPInfoLogger` - requires only the serviceName as a parameter. Initializes logger with log level info. 
-Also there is additional optional parameter - 
-configuration for the names of the field keys logged by the UPP logger methods. 
+
+- `NewUPPLogger` - requires a serviceName and a logLevel as parameters. Also there is additional optional parameter - configuration for the names of the field keys logged by the UPP logger methods.
+- `NewUPPInfoLogger` - requires only the serviceName as a parameter. Initializes logger with log level info.
+Also there is additional optional parameter - configuration for the names of the field keys logged by the UPP logger methods.
 - `NewUnstructuredLogger` - returns UPP logger but without enforced structured logging format.
 
 Please note that using package level logger by only importing the library (supported in v1 of this library) is no longer available.
 
-### Logging with the UPP logger
+## Logging with the UPP logger
+
 UPP logger supports structured logging as logrus supports it. Please take a look at [logging fields](https://github.com/sirupsen/logrus#fields)
 as logrus method for structured logging. UPP logrus also implements `WithField` and `WithFields` methods.
 As logrus UPPLogger also supports chaining of the methods that add logging fields.
@@ -30,19 +31,20 @@ For producing actual log, use the default log methods, like Info, Warn, Error an
 ### Adding additional methods to the Entry and logger
 
 Beside the With... fields offered by the original logrus Entry and logger, the following methods can be used:
+
 - `WithTransactionID`, to add a transaction ID to the log entry;
 - `WithUUID`, to add a UUID to the log entry;
-- `WithTime`, to set a custom time of the logging entry (this can be used to influence Splunk log time); 
-- `WithValidFlag` to mark if a message received by an application is valid or not. 
+- `WithTime`, to set a custom time of the logging entry (this can be used to influence Splunk log time);
+- `WithValidFlag` to mark if a message received by an application is valid or not.
 Invalid messages will be ignored by some of the monitoring statistics (SLAs).
 
-
 ### Logging events
+
 The library includes methods which help facilitate the monitoring of key application events.
 
 - You can add a monitoring event to a log entry by using the following method:
-`WithMonitoringEvent` - with transaction ID, event name and content type as parameters. 
-A `monitoring_event=true` field will also be added to the entry. 
+`WithMonitoringEvent` - with transaction ID, event name and content type as parameters.
+A `monitoring_event=true` field will also be added to the entry.
 This message will be picked up by the monitoring services and dashboards.
 - You can add an event with category and message by using: `WithCategorisedEvent` - with event name,
 event category and event message as parameters. Using this method we are also able to produce log
@@ -52,7 +54,7 @@ with particular structure easy to be picked up and parsed by a monitoring tool.
 
 A monitoring log for a successful publish, with validation flag, can look like this:
 
-```
+``` go
 logger.WithMonitoringEvent("Map", tid, "Annotations")
       .WithUUID(uuid)
       .WithValidFlag(true)
@@ -60,7 +62,8 @@ logger.WithMonitoringEvent("Map", tid, "Annotations")
 ```
 
 A monitoring log for a failed publish would log it as an error:
-```
+
+``` go
 logger.WithMonitoringEvent("Map", tid, "Annotations")
       .WithUUID(uuid)
       .WithValidFlag(true)
@@ -70,9 +73,10 @@ logger.WithMonitoringEvent("Map", tid, "Annotations")
 
 ### Test Package
 
-The `test` package has been introduced to check through unit tests that the application is logging relevant events 
-properly. The example below shows how to check that an application is logging a specific monitoring event:
-```
+The `test` package has been introduced to check through unit tests that the application is logging relevant events properly.
+The example below shows how to check that an application is logging a specific monitoring event:
+
+``` go
 import (
     ...
     logTest "github.com/Financial-Times/go-logger/test"
@@ -87,5 +91,4 @@ func TestSomething(t *testing.T) {
     entry := hook.LastEntry()
     test.Assert(t, entry).HasMonitoringEvent("Map", "tid_test", "annotations").HasValidFlag(true)
 }
-
 ```
