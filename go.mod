@@ -1,6 +1,6 @@
 module github.com/Financial-Times/go-logger/v2
 
-go 1.25
+go 1.26
 
 require (
 	github.com/sirupsen/logrus v1.9.3
